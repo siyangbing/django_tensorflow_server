@@ -7,7 +7,7 @@ import time
 # 原始图片的缩放比例
 resize_shape = 0.5
 # 原始img文件夹路径
-img_path = "1.jpg"
+img_path = "../test_img/shiziluoding.jpg"
 saved_img_path = "/home/db/图片/img"
 
 resize_shape = (1920, 1080)

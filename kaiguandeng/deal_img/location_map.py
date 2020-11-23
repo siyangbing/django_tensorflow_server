@@ -5,7 +5,7 @@ import cv2
 import time
 from sklearn.cluster import KMeans
 
-img_path = "1.jpg"
+img_path = "../../test_img/kaiguandeng.jpg"
 img_resize_shape=(1920, 1080)
 model_img_input_size = (640, 480)
 saved_model_dir = '/home/db/PycharmProjects/django_tensorflow_server/kaiguandeng/pb_model/saved_model'

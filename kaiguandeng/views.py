@@ -53,7 +53,7 @@ def terminal(request):
         # 处理
         kaiguandeng.imagenet.flag = False
         img_dir = os.path.join(ftp_dir, imgPath)
-        # img_dir = "/home/db/dbing/django_test/kaiguandeng/deal_img/1.jpg"
+        # img_dir = "/home/db/dbing/django_test/kaiguandeng/deal_img/yiziluoding.jpg"
         print("img_path:-------{}".format(imgPath))
         if not os.path.exists(img_dir):
             kaiguandeng.imagenet.flag = True

@@ -3,7 +3,7 @@ import tensorflow as tf
 import cv2
 
 
-img_path = "/home/db/bing/django_test/shiziluoding/1.jpg"
+img_path = "/home/db/bing/django_test/shiziluoding/yiziluoding.jpg"
 img = cv2.imread(img_path)
 cjpj = CJPJ(crop_size, border, show_rate)
 croped_img_list = cjpj.crop_img(img)
