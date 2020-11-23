@@ -147,19 +147,22 @@ class CJPJ():
                 crop_img_index += 1
 
         result_list_points = self.del_iou_boxes(final_list)
-        # for last_point in result_list_points:
-        #     # 绘制最终拼接的检测结果
-        #     cv2.rectangle(self.img, (int(last_point[0]), int(last_point[1])), (int(last_point[2]), int(last_point[3])),
-        #                   (0, 255, 0), 1, 8)
-        #     cv2.putText(self.img, str(last_point[4])[:6], (int(last_point[0]), int(last_point[1])),
-        #                 cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 1)
-        #     cv2.putText(self.img, str(last_point[5]), (int(last_point[0]), int(last_point[1]+10)),
-        #                 cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 1)
+        return result_list_points
+
+    def draw_boxes(self,result_list_points,img):
+        for last_point in result_list_points:
+            # 绘制最终拼接的检测结果
+            cv2.rectangle(img, (int(last_point[0]), int(last_point[1])), (int(last_point[2]), int(last_point[3])),
+                          (0, 255, 0), 1, 8)
+            cv2.putText(img, str(last_point[4])[:6], (int(last_point[0]), int(last_point[1])),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 1)
+            cv2.putText(img, str(last_point[5]), (int(last_point[0]), int(last_point[1]+10)),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 1)
 
         # print("time------------{}".format(time.time() - t0))
         # a = 111
 
-        return result_list_points
+        return img
 
     def mat_inter(self, box1, box2):
         # 判断两个矩形是否相交
@@ -248,6 +251,7 @@ class CJPJ():
                 continue
         return result_list
 
+
     #     for x_l in range(self.h_num):
     #         for y_l in range(self.w_num):
     #             if points_list:
@@ -276,11 +280,13 @@ class CJPJ():
 
 if __name__ == '__main__':
     img_data = cv2.imread(img_path)
+    img = cv2.resize(img_data, resize_shape)
     cjpj = CJPJ(crop_size, border, show_rate)
     croped_img_list = cjpj.crop_img(img_data)
     y_list = cjpj.eval_img_list(croped_img_list)
     result = cjpj.pj(y_list, show_rate)
-    # cv2.imshow("ppp",img11)
+    img_result = cjpj.draw_boxes(result,img)
+    # cv2.imshow("ppp",img_result)
     # cv2.waitKey(0)
 
     print(result)

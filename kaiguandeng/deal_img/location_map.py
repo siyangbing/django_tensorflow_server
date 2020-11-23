@@ -6,7 +6,7 @@ import time
 from sklearn.cluster import KMeans
 
 img_path = "1.jpg"
-
+img_resize_shape=(1920, 1080)
 model_img_input_size = (640, 480)
 saved_model_dir = '/home/db/PycharmProjects/django_tensorflow_server/kaiguandeng/pb_model/saved_model'
 config = tf.ConfigProto(allow_soft_placement=True)
@@ -384,29 +384,33 @@ class Map_location():
 
         return result_findal_list
 
+    def draw_boxes(self,result_findal_list,img):
+        for a in result_findal_list:
+            for b in a:
+                for c in b:
+                    point_1 = (int(c[3] * img.shape[1]), int(c[2] * img.shape[0]))
+                    point_2 = (int(c[5] * img.shape[1]), int(c[4] * img.shape[0]))
+                    # print(point_1,point_2)
+                    cv2.rectangle(img, point_1, point_2, (0, 255, 0), 1)
+                    str_txt = str(c[0])
+                    # print(str_txt)
+                    str_txt = label_dict[str(c[0])]
+                    # print("qqq================={}".format(str_txt))
+                    cv2.putText(img, str_txt, point_1, cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 0, 0), 1)
+        return img
+
 
 if __name__ == "__main__":
-    img1 = cv2.imread(img_path)
-    img2 = cv2.resize(img1, (1920, 1080))
-    cv2.imwrite("src.jpg",img2)
+    img = cv2.imread(img_path)
+    img = cv2.resize(img, img_resize_shape)
+    # cv2.imwrite("src.jpg",img2)
     # img3 = cv2.resize(img1,(640,480))
     map_location = Map_location(treshold, label_dict, join_label_dict,model_img_input_size)
     img_data_list = map_location.read_img(img_path)
     y_list = map_location.eval_img_list(img_data_list)
     result_list = map_location.get_location(y_list)
     print(result_list)
-    for a in result_list:
-        for b in a:
-            for c in b:
-                point_1 = (int(c[3] * 1920), int(c[2] * 1080))
-                point_2 = (int(c[5] * 1920), int(c[4] * 1080))
-                # print(point_1,point_2)
-                cv2.rectangle(img2, point_1, point_2, (0, 255, 0), 1)
-                str_txt = str(c[0])
-                # print(str_txt)
-                str_txt = label_dict[str(c[0])]
-                # print("qqq================={}".format(str_txt))
-                cv2.putText(img2, str_txt, point_1, cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 0, 0), 1)
-    cv2.imshow("ppp",img2)
-    cv2.imwrite("result.jpg",img2)
+    map_location.draw_boxes(result_list,img)
+    cv2.imshow("ppp",img)
+    cv2.imwrite("result.jpg",img)
     cv2.waitKey(0)
