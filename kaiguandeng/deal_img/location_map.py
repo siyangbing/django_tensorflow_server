@@ -8,7 +8,7 @@ from sklearn.cluster import KMeans
 img_path = "1.jpg"
 
 model_img_input_size = (640, 480)
-saved_model_dir = '/home/db/bing/django_tensorflow_server/kaiguandeng/pb_model/saved_model'
+saved_model_dir = '/home/db/PycharmProjects/django_tensorflow_server/kaiguandeng/pb_model/saved_model'
 config = tf.ConfigProto(allow_soft_placement=True)
 gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5)
 config.gpu_options.allow_growth = True
@@ -162,7 +162,6 @@ def echoRuntime(func):
         return result
 
     return wrapper
-
 
 class Map_location():
     # @echoRuntime

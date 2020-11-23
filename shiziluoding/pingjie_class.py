@@ -17,13 +17,12 @@ crop_size = (640, 640)
 border = 110
 show_rate = 0.52
 
-saved_model_dir_szld = '/home/db/bing/django_tensorflow_server/shiziluoding/saved_model'
+saved_model_dir_szld = '/home/db/PycharmProjects/django_tensorflow_server/shiziluoding/saved_model'
 config = tf.ConfigProto(allow_soft_placement=True)
 gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.9)
 config.gpu_options.allow_growth = True
 sess = tf.Session(config=config)
 meta_graph_def = tf.saved_model.loader.load(sess, [tf.saved_model.tag_constants.SERVING], saved_model_dir_szld)
-
 
 def echoRuntime(func):
     def wrapper(*args, **kwargs):
