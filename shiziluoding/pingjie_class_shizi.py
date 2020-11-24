@@ -21,8 +21,8 @@ saved_model_dir_szld = '/home/db/PycharmProjects/django_tensorflow_server/shizil
 config = tf.ConfigProto(allow_soft_placement=True)
 gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.9)
 config.gpu_options.allow_growth = True
-sess = tf.Session(config=config)
-meta_graph_def = tf.saved_model.loader.load(sess, [tf.saved_model.tag_constants.SERVING], saved_model_dir_szld)
+# sess = tf.Session(config=config)
+# meta_graph_def = tf.saved_model.loader.load(sess, [tf.saved_model.tag_constants.SERVING], saved_model_dir_szld)
 
 def echoRuntime(func):
     def wrapper(*args, **kwargs):
@@ -83,6 +83,11 @@ class CJPJ():
 
     # 预测图片列表
     def eval_img_list(self, croped_img_list):
+        sess = tf.Session(config=config)
+        # meta_graph_def = tf.saved_model.loader.load(sess, [tf.saved_model.tag_constants.SERVING], saved_model_dir)
+        with sess as sess_shiziluoding:
+            meta_graph_def = tf.saved_model.loader.load(sess_shiziluoding, [tf.saved_model.tag_constants.SERVING],
+                                                        saved_model_dir_szld)
         # saved_model_dir = '/home/db/bing/django_test/shiziluoding/saved_model'
         # config = tf.ConfigProto(allow_soft_placement=True)
         # gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.9)
@@ -93,27 +98,27 @@ class CJPJ():
         # img = cv2.imread(img_dir)  # 读取图片
         # img = cv2.resize(img, model_img_input_size)  # 缩放到480*480
         # while True:
-        t0 = time.time()
-        img_data_list = []
-        for img in croped_img_list:
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            img_array = np.array(img, dtype=float)  # 改变数据类型为float
-            img_array = img_array[np.newaxis, :, :, :]  # 增加一个维度
-            input_data = np.array(img_array, dtype=np.float32)
+            t0 = time.time()
+            img_data_list = []
+            for img in croped_img_list:
+                img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                img_array = np.array(img, dtype=float)  # 改变数据类型为float
+                img_array = img_array[np.newaxis, :, :, :]  # 增加一个维度
+                input_data = np.array(img_array, dtype=np.float32)
 
-            img_data_list.append(input_data)
-        img_data = np.vstack((x for x in img_data_list))
-        input = sess.graph.get_tensor_by_name('image_tensor:0')
-        detection_boxes = sess.graph.get_tensor_by_name('detection_boxes:0')
-        detection_score = sess.graph.get_tensor_by_name('detection_scores:0')
-        detection_classes = sess.graph.get_tensor_by_name('detection_classes:0')
-        num_detections = sess.graph.get_tensor_by_name('num_detections:0')
-        feed_dict = {input: img_data, }
+                img_data_list.append(input_data)
+            img_data = np.vstack((x for x in img_data_list))
+            input = sess.graph.get_tensor_by_name('image_tensor:0')
+            detection_boxes = sess.graph.get_tensor_by_name('detection_boxes:0')
+            detection_score = sess.graph.get_tensor_by_name('detection_scores:0')
+            detection_classes = sess.graph.get_tensor_by_name('detection_classes:0')
+            num_detections = sess.graph.get_tensor_by_name('num_detections:0')
+            feed_dict = {input: img_data, }
 
-        # result_list = [[] for x in range(self.w_num * self.h_num)]
+            # result_list = [[] for x in range(self.w_num * self.h_num)]
 
-        y = sess.run([detection_boxes, detection_score, detection_classes, num_detections], feed_dict=feed_dict)
-        return y
+            y = sess.run([detection_boxes, detection_score, detection_classes, num_detections], feed_dict=feed_dict)
+            return y
 
     # 拼接图片列表
     def pj(self, y, show_rate):

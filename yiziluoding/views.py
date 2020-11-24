@@ -45,6 +45,8 @@ def yiziluoding(request):
     print(step_id)
     ip = request.GET.get('ip')
     print(ip)
+    base64 = request.GET.get('base64')
+    print(base64)
 
     if kaiguandeng.imagenet.flag:
         t0 = time.time()

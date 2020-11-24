@@ -13,7 +13,7 @@ import tensorflow as tf
 import cv2
 import numpy as np
 from  django.http import JsonResponse
-from shiziluoding.pingjie_class_shizi import CJPJ,resize_shape,crop_size,border,show_rate,sess,meta_graph_def
+from shiziluoding.pingjie_class_shizi import CJPJ,crop_size,border,show_rate
 
 import kaiguandeng.imagenet
 
@@ -45,6 +45,8 @@ def shiziluoding(request):
     print(step_id)
     ip = request.GET.get('ip')
     print(ip)
+    base64 = request.GET.get('base64')
+    print(base64)
 
     if kaiguandeng.imagenet.flag:
         t0 = time.time()

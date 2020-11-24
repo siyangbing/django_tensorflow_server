@@ -11,7 +11,7 @@ import cv2
 import numpy as np
 from django.http import JsonResponse
 
-from kaiguandeng.deal_img.location_map import Map_location, model_img_input_size, sess, meta_graph_def, label_dict, \
+from kaiguandeng.deal_img.location_map import Map_location, model_img_input_size, label_dict, \
     join_label_dict, treshold
 
 import kaiguandeng.imagenet
@@ -45,6 +45,8 @@ def terminal(request):
     print(step_id)
     ip = request.GET.get('ip')
     print(ip)
+    # base64 = request.GET.get('base64')
+    # print(base64)
 
     if kaiguandeng.imagenet.flag:
         t0 = time.time()
@@ -53,7 +55,7 @@ def terminal(request):
         # 处理
         kaiguandeng.imagenet.flag = False
         img_dir = os.path.join(ftp_dir, imgPath)
-        # img_dir = "/home/db/dbing/django_test/kaiguandeng/deal_img/yiziluoding.jpg"
+        # img_dir = "/home/db/myftp/tensorflow/1.png"
         print("img_path:-------{}".format(imgPath))
         if not os.path.exists(img_dir):
             kaiguandeng.imagenet.flag = True
@@ -71,15 +73,25 @@ def terminal(request):
         # print("img_data_list------------------------{}".format(str(img_data_list)))
         try:
             y_list = map_location.eval_img_list(img_data_list)
+            # print("ylist_______________{}".format(y_list))
         except:
             result_list = " y_list failed!"
             print("y_list error!")
-        # print("y_list------------------------{}".format(str(y_list)))
+
         try:
             result_list = map_location.get_location(y_list)
+            print("result_list________{}".format(result_list))
+            print("++++++++++++++++++++++++++++++++++++++++++++")
         except:
             result_list = " result_list failed!"
             print("result_list error!")
+
+        # print("y_list------------------------{}".format(str(y_list)))
+        # try:
+        #     result_list = map_location.get_location(y_list)
+        # except:
+        #     result_list = " result_list failed!"
+        #     print("result_list error!")
 
         data = {
             'result': str(result_list),

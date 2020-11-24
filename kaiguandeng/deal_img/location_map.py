@@ -5,15 +5,16 @@ import cv2
 import time
 from sklearn.cluster import KMeans
 
-img_path = "../../test_img/kaiguandeng.jpg"
+img_path = "/home/db/myftp/tensorflow/1.png"
 img_resize_shape=(1920, 1080)
 model_img_input_size = (640, 480)
 saved_model_dir = '/home/db/PycharmProjects/django_tensorflow_server/kaiguandeng/pb_model/saved_model'
 config = tf.ConfigProto(allow_soft_placement=True)
 gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5)
 config.gpu_options.allow_growth = True
-sess = tf.Session(config=config)
-meta_graph_def = tf.saved_model.loader.load(sess, [tf.saved_model.tag_constants.SERVING], saved_model_dir)
+# sess = tf.Session(config=config)
+# meta_graph_def = tf.saved_model.loader.load(sess, [tf.saved_model.tag_constants.SERVING], saved_model_dir)
+
 
 label_dict = {'1.0': 'ku', '2.0': 'kd', '3.0': 'km', '4.0': 'u', '5.0': 'd', '6.0': 'l', '7.0': 'r', '8.0': 'm',
               '9.0': 'k', '10.0': 'g'}
@@ -229,27 +230,32 @@ class Map_location():
 
     def eval_img_list(self, croped_img_list):
         # while True:
-        t0 = time.time()
-        img_data_list = []
-        for img in croped_img_list:
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            img_array = np.array(img, dtype=float)  # 改变数据类型为float
-            img_array = img_array[np.newaxis, :, :, :]  # 增加一个维度
-            input_data = np.array(img_array, dtype=np.float32)
+        sess = tf.Session(config=config)
+        # meta_graph_def = tf.saved_model.loader.load(sess, [tf.saved_model.tag_constants.SERVING], saved_model_dir)
+        with sess as sess_kaiguandneg:
+            meta_graph_def = tf.saved_model.loader.load(sess_kaiguandneg, [tf.saved_model.tag_constants.SERVING],
+                                                        saved_model_dir)
+            t0 = time.time()
+            img_data_list = []
+            for img in croped_img_list:
+                img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                img_array = np.array(img, dtype=float)  # 改变数据类型为float
+                img_array = img_array[np.newaxis, :, :, :]  # 增加一个维度
+                input_data = np.array(img_array, dtype=np.float32)
 
-            img_data_list.append(input_data)
-        img_data = np.vstack((x for x in img_data_list))
-        input = sess.graph.get_tensor_by_name('image_tensor:0')
-        detection_boxes = sess.graph.get_tensor_by_name('detection_boxes:0')
-        detection_score = sess.graph.get_tensor_by_name('detection_scores:0')
-        detection_classes = sess.graph.get_tensor_by_name('detection_classes:0')
-        num_detections = sess.graph.get_tensor_by_name('num_detections:0')
-        feed_dict = {input: img_data, }
+                img_data_list.append(input_data)
+            img_data = np.vstack((x for x in img_data_list))
+            input = sess.graph.get_tensor_by_name('image_tensor:0')
+            detection_boxes = sess.graph.get_tensor_by_name('detection_boxes:0')
+            detection_score = sess.graph.get_tensor_by_name('detection_scores:0')
+            detection_classes = sess.graph.get_tensor_by_name('detection_classes:0')
+            num_detections = sess.graph.get_tensor_by_name('num_detections:0')
+            feed_dict = {input: img_data, }
 
-        # result_list = [[] for x in range(self.w_num * self.h_num)]
+            # result_list = [[] for x in range(self.w_num * self.h_num)]
 
-        y = sess.run([detection_boxes, detection_score, detection_classes, num_detections], feed_dict=feed_dict)
-        return y
+            y = sess.run([detection_boxes, detection_score, detection_classes, num_detections], feed_dict=feed_dict)
+            return y
 
     def mat_inter(self, box1, box2):
         # 判断两个矩形是否相交
@@ -380,7 +386,7 @@ class Map_location():
         # result_list1 = [[x[2],x[3],x[4],x[5],x[0],x[1]] for x in result_llist]
         # result_list_points1 = self.del_iou_boxes(result_list1)
         result_findal_list = [[[[c[4], c[5], c[0], c[1], c[2], c[3]] for c in b] for b in a] for a in result_llist]
-        # print(str(result_llist))
+        # print("result_list_0000000000{}".format(str(result_llist)))
 
         return result_findal_list
 
@@ -408,9 +414,10 @@ if __name__ == "__main__":
     map_location = Map_location(treshold, label_dict, join_label_dict,model_img_input_size)
     img_data_list = map_location.read_img(img_path)
     y_list = map_location.eval_img_list(img_data_list)
+    print("wwwwwwwwwwwwwww")
     result_list = map_location.get_location(y_list)
     print(result_list)
     map_location.draw_boxes(result_list,img)
     cv2.imshow("ppp",img)
-    cv2.imwrite("result.jpg",img)
+    # cv2.imwrite("result.jpg",img)
     cv2.waitKey(0)
