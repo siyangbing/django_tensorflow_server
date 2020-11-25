@@ -12,8 +12,8 @@ saved_model_dir = '/home/db/PycharmProjects/django_tensorflow_server/kaiguandeng
 config = tf.ConfigProto(allow_soft_placement=True)
 gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5)
 config.gpu_options.allow_growth = True
-# sess_sig = tf.Session(config=config)
-# meta_graph_def_sig = tf.saved_model.loader.load(sess_sig, [tf.saved_model.tag_constants.SERVING], saved_model_dir)
+sess = tf.Session(config=config)
+meta_graph_def_sig = tf.saved_model.loader.load(sess, [tf.saved_model.tag_constants.SERVING], saved_model_dir)
 
 
 label_dict = {'1.0': 'ku', '2.0': 'kd', '3.0': 'km', '4.0': 'u', '5.0': 'd', '6.0': 'l', '7.0': 'r', '8.0': 'm',
@@ -228,7 +228,7 @@ class Map_location():
         img = cv2.resize(img, self.model_img_input_size )  # 缩放到480*480
         return [img]
 
-    def eval_img_list(self, croped_img_list,sess,meta_graph_def):
+    def eval_img_list(self, croped_img_list):
         # meta_graph_def = meta_graph_def
         # while True:
         # sess = tf.Session(config=config)

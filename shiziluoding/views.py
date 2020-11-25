@@ -13,14 +13,14 @@ import tensorflow as tf
 import cv2
 import numpy as np
 from  django.http import JsonResponse
-from shiziluoding.pingjie_class_shizi import CJPJ,crop_size,border,show_rate,config,saved_model_dir,resize_shape
+from shiziluoding.pingjie_class_shizi import CJPJ,crop_size,border,show_rate,resize_shape
 
 import kaiguandeng.imagenet
 
 ftp_dir = "/home/db/myftp/tensorflow"
 
-sess_shiziluoding = tf.Session(config=config)
-meta_graph_def = tf.saved_model.loader.load(sess_shiziluoding, [tf.saved_model.tag_constants.SERVING], saved_model_dir)
+# sess_shiziluoding = tf.Session(config=config)
+# meta_graph_def = tf.saved_model.loader.load(sess_shiziluoding, [tf.saved_model.tag_constants.SERVING], saved_model_dir)
 
 def echoRuntime(func):
     def wrapper(*args, **kwargs):
@@ -68,7 +68,7 @@ def shiziluoding(request):
         cjpj = CJPJ(crop_size, border, show_rate)
         try:
             croped_img_list = cjpj.crop_img(img)
-            y_list = cjpj.eval_img_list(croped_img_list,sess_shiziluoding,meta_graph_def)
+            y_list = cjpj.eval_img_list(croped_img_list)
             result_list = cjpj.pj(y_list, show_rate)
             img = cv2.resize(img, resize_shape)
             img_result = cjpj.draw_boxes(result_list, img)

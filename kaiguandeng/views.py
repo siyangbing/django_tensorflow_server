@@ -18,8 +18,8 @@ import kaiguandeng.imagenet
 
 ftp_dir = "/home/db/myftp/tensorflow"
 
-sess_kaiguandeng = tf.Session(config=config)
-meta_graph_def = tf.saved_model.loader.load(sess_kaiguandeng, [tf.saved_model.tag_constants.SERVING], saved_model_dir)
+# sess_kaiguandeng = tf.Session(config=config)
+# meta_graph_def = tf.saved_model.loader.load(sess_kaiguandeng, [tf.saved_model.tag_constants.SERVING], saved_model_dir)
 
 def echoRuntime(func):
     def wrapper(*args, **kwargs):
@@ -74,7 +74,7 @@ def terminal(request):
             print("img_data_list error!")
         # print("img_data_list------------------------{}".format(str(img_data_list)))
         try:
-            y_list = map_location.eval_img_list(img_data_list,sess_kaiguandeng,meta_graph_def)
+            y_list = map_location.eval_img_list(img_data_list)
             # print("ylist_______________{}".format(y_list))
         except:
             result_list = " y_list failed!"

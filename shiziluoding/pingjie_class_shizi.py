@@ -21,8 +21,8 @@ saved_model_dir = '/home/db/PycharmProjects/django_tensorflow_server/shiziluodin
 config = tf.ConfigProto(allow_soft_placement=True)
 gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.9)
 config.gpu_options.allow_growth = True
-# sess = tf.Session(config=config)
-# meta_graph_def = tf.saved_model.loader.load(sess, [tf.saved_model.tag_constants.SERVING], saved_model_dir)
+sess = tf.Session(config=config)
+meta_graph_def = tf.saved_model.loader.load(sess, [tf.saved_model.tag_constants.SERVING], saved_model_dir)
 
 def echoRuntime(func):
     def wrapper(*args, **kwargs):
@@ -82,7 +82,7 @@ class CJPJ():
         return croped_img_list
 
     # 预测图片列表
-    def eval_img_list(self, croped_img_list,sess,meta_graph_def):
+    def eval_img_list(self, croped_img_list):
         # meta_graph_def = meta_graph_def
         # sess = tf.Session(config=config)
         # # meta_graph_def = tf.saved_model.loader.load(sess, [tf.saved_model.tag_constants.SERVING], saved_model_dir)
