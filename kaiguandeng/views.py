@@ -11,13 +11,15 @@ import cv2
 import numpy as np
 from django.http import JsonResponse
 
-from kaiguandeng.deal_img.location_map import Map_location, model_img_input_size, label_dict, \
+from kaiguandeng.deal_img.location_map import Map_location, model_img_input_size, label_dict, config,saved_model_dir,\
     join_label_dict, treshold
 
 import kaiguandeng.imagenet
 
 ftp_dir = "/home/db/myftp/tensorflow"
 
+sess_kaiguandeng = tf.Session(config=config)
+meta_graph_def = tf.saved_model.loader.load(sess_kaiguandeng, [tf.saved_model.tag_constants.SERVING], saved_model_dir)
 
 def echoRuntime(func):
     def wrapper(*args, **kwargs):
@@ -54,8 +56,8 @@ def terminal(request):
         print("执行处理")
         # 处理
         kaiguandeng.imagenet.flag = False
-        img_dir = os.path.join(ftp_dir, imgPath)
-        # img_dir = "/home/db/myftp/tensorflow/1.png"
+        # img_dir = os.path.join(ftp_dir, imgPath)
+        img_dir = "/home/db/myftp/tensorflow/resutlt_12.jpg"
         print("img_path:-------{}".format(imgPath))
         if not os.path.exists(img_dir):
             kaiguandeng.imagenet.flag = True
@@ -72,7 +74,7 @@ def terminal(request):
             print("img_data_list error!")
         # print("img_data_list------------------------{}".format(str(img_data_list)))
         try:
-            y_list = map_location.eval_img_list(img_data_list)
+            y_list = map_location.eval_img_list(img_data_list,sess_kaiguandeng,meta_graph_def)
             # print("ylist_______________{}".format(y_list))
         except:
             result_list = " y_list failed!"

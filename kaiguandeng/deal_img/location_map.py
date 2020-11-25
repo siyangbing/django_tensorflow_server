@@ -12,8 +12,8 @@ saved_model_dir = '/home/db/PycharmProjects/django_tensorflow_server/kaiguandeng
 config = tf.ConfigProto(allow_soft_placement=True)
 gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5)
 config.gpu_options.allow_growth = True
-# sess = tf.Session(config=config)
-# meta_graph_def = tf.saved_model.loader.load(sess, [tf.saved_model.tag_constants.SERVING], saved_model_dir)
+# sess_sig = tf.Session(config=config)
+# meta_graph_def_sig = tf.saved_model.loader.load(sess_sig, [tf.saved_model.tag_constants.SERVING], saved_model_dir)
 
 
 label_dict = {'1.0': 'ku', '2.0': 'kd', '3.0': 'km', '4.0': 'u', '5.0': 'd', '6.0': 'l', '7.0': 'r', '8.0': 'm',
@@ -228,34 +228,35 @@ class Map_location():
         img = cv2.resize(img, self.model_img_input_size )  # 缩放到480*480
         return [img]
 
-    def eval_img_list(self, croped_img_list):
+    def eval_img_list(self, croped_img_list,sess,meta_graph_def):
+        # meta_graph_def = meta_graph_def
         # while True:
-        sess = tf.Session(config=config)
-        # meta_graph_def = tf.saved_model.loader.load(sess, [tf.saved_model.tag_constants.SERVING], saved_model_dir)
-        with sess as sess_kaiguandneg:
-            meta_graph_def = tf.saved_model.loader.load(sess_kaiguandneg, [tf.saved_model.tag_constants.SERVING],
-                                                        saved_model_dir)
-            t0 = time.time()
-            img_data_list = []
-            for img in croped_img_list:
-                img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-                img_array = np.array(img, dtype=float)  # 改变数据类型为float
-                img_array = img_array[np.newaxis, :, :, :]  # 增加一个维度
-                input_data = np.array(img_array, dtype=np.float32)
+        # sess = tf.Session(config=config)
+        # # meta_graph_def = tf.saved_model.loader.load(sess, [tf.saved_model.tag_constants.SERVING], saved_model_dir)
+        # with sess as sess_kaiguandneg:
+        #     meta_graph_def = tf.saved_model.loader.load(sess_kaiguandneg, [tf.saved_model.tag_constants.SERVING],
+        #                                                 saved_model_dir)
+        t0 = time.time()
+        img_data_list = []
+        for img in croped_img_list:
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            img_array = np.array(img, dtype=float)  # 改变数据类型为float
+            img_array = img_array[np.newaxis, :, :, :]  # 增加一个维度
+            input_data = np.array(img_array, dtype=np.float32)
 
-                img_data_list.append(input_data)
-            img_data = np.vstack((x for x in img_data_list))
-            input = sess.graph.get_tensor_by_name('image_tensor:0')
-            detection_boxes = sess.graph.get_tensor_by_name('detection_boxes:0')
-            detection_score = sess.graph.get_tensor_by_name('detection_scores:0')
-            detection_classes = sess.graph.get_tensor_by_name('detection_classes:0')
-            num_detections = sess.graph.get_tensor_by_name('num_detections:0')
-            feed_dict = {input: img_data, }
+            img_data_list.append(input_data)
+        img_data = np.vstack((x for x in img_data_list))
+        input = sess.graph.get_tensor_by_name('image_tensor:0')
+        detection_boxes = sess.graph.get_tensor_by_name('detection_boxes:0')
+        detection_score = sess.graph.get_tensor_by_name('detection_scores:0')
+        detection_classes = sess.graph.get_tensor_by_name('detection_classes:0')
+        num_detections = sess.graph.get_tensor_by_name('num_detections:0')
+        feed_dict = {input: img_data, }
 
-            # result_list = [[] for x in range(self.w_num * self.h_num)]
+        # result_list = [[] for x in range(self.w_num * self.h_num)]
 
-            y = sess.run([detection_boxes, detection_score, detection_classes, num_detections], feed_dict=feed_dict)
-            return y
+        y = sess.run([detection_boxes, detection_score, detection_classes, num_detections], feed_dict=feed_dict)
+        return y
 
     def mat_inter(self, box1, box2):
         # 判断两个矩形是否相交
