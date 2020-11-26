@@ -21,7 +21,8 @@ saved_model_dir = '/home/db/PycharmProjects/django_tensorflow_server/shiziluodin
 config = tf.ConfigProto(allow_soft_placement=True)
 gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.9)
 config.gpu_options.allow_growth = True
-sess = tf.Session(config=config)
+g1 = tf.Graph()
+sess = tf.Session(config=config,graph=g1)
 meta_graph_def = tf.saved_model.loader.load(sess, [tf.saved_model.tag_constants.SERVING], saved_model_dir)
 
 def echoRuntime(func):

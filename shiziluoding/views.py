@@ -70,6 +70,7 @@ def shiziluoding(request):
             croped_img_list = cjpj.crop_img(img)
             y_list = cjpj.eval_img_list(croped_img_list)
             result_list = cjpj.pj(y_list, show_rate)
+            print(result_list)
             img = cv2.resize(img, resize_shape)
             img_result = cjpj.draw_boxes(result_list, img)
             cv2.imwrite('/home/db/myftp/tensorflow/resutlt_szld1.jpg', img_result)

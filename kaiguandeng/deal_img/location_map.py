@@ -12,7 +12,8 @@ saved_model_dir = '/home/db/PycharmProjects/django_tensorflow_server/kaiguandeng
 config = tf.ConfigProto(allow_soft_placement=True)
 gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5)
 config.gpu_options.allow_growth = True
-sess = tf.Session(config=config)
+g1 = tf.Graph()
+sess = tf.Session(config=config,graph=g1)
 meta_graph_def_sig = tf.saved_model.loader.load(sess, [tf.saved_model.tag_constants.SERVING], saved_model_dir)
 
 
@@ -181,7 +182,7 @@ class Map_location():
         # print(elem)
         return elem[0][2]
 
-    @echoRuntime
+    # @echoRuntime
     def julei(self, class_num, point_list, key):
         if key == "lie":
             key_index = 3
@@ -358,7 +359,7 @@ class Map_location():
         # plt.plot(x, y)
         plt.show()
 
-    @echoRuntime
+    # @echoRuntime
     def get_location(self,y):
         self.location_list = y[0][0]
         self.score_list = y[1][0]
