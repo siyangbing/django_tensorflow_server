@@ -3,4 +3,4 @@ from django.http import HttpResponse
 
 # Create your views here.
 def kougai(request):
-    return HttpResponse("kougai")
+    return HttpResponse("eval_img")

@@ -34,29 +34,31 @@ def echoRuntime(func):
 
     return wrapper
 
-@echoRuntime
+# @echoRuntime
 def base64_test(request):
     if (request.method == 'POST'):
-        user_id = request.POST.get('username')
-        print("user_id   {}".format(user_id))
-        img_filename = request.POST.get('filename')
-        print("filename   {}".format(img_filename))
-        test_image = base64.b64decode(request.POST.get('b64'))  # 本质就是解码字符串
+        t0 = time.time()
+
+        img_data = request.POST.get('image')  # 本质就是解码字符串
         # print(test_image)
-        # img_byte = base64.b64decode(result)
-        img_np_arr = np.fromstring(test_image, np.uint8)
+        img_byte = base64.b64decode(img_data)
+        img_np_arr = np.fromstring(img_byte, np.uint8)
         image = cv2.imdecode(img_np_arr, cv2.IMREAD_COLOR)
         # cv2.imwrite("./pppp.jpg",image)
-
-        map_location = Map_location(treshold, label_dict, join_label_dict, model_img_input_size)
-        img_data_list = map_location.read_img(image)
-        y_list = map_location.eval_img_list(img_data_list)
-        result_list = map_location.get_location(y_list)
+        code = 200
+        try:
+            map_location = Map_location(treshold, label_dict, join_label_dict, model_img_input_size)
+            img_data_list = map_location.read_img(image)
+            y_list = map_location.eval_img_list(img_data_list)
+            result_list = map_location.get_location(y_list)
+        except:
+            code = 200
+            result_list = []
         data = {
-            'user_id': user_id,
-            'img_filename': img_filename,
-            'result_list': result_list,
+            'code': code,
+            'result': result_list,
         }
+        print("处理一张图片需要{}秒".format(time.time()-t0))
     return JsonResponse(data)
     # return HttpResponse("success!!!")
 

@@ -6,7 +6,7 @@ import numpy as np
 
 # from del_cf import Del_Cf
 
-saved_model_dir = "/home/db/dbing/models-master/research/object_detection/ztuiduan/new_models/kougai/saved_model"
+saved_model_dir = "/home/db/dbing/models-master/research/object_detection/ztuiduan/new_models/eval_img/saved_model"
 # saved_model_dir = "/home/sucom/Documents/led_lamp_0610/pb_dir/saved_model"
 image = cv2.imread("/home/db/文档/口盖/19710514_210826.jpg")
 result_img_path = "./kougai.png"

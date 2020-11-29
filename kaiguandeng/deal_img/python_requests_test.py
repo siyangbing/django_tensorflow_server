@@ -20,7 +20,7 @@ data = {
 data_64 = {
     'username': "db",
     'filename': "img.png",
-    'b64': aa_img,
+    'image': aa_img,
 }
 url_kaiguandeng = 'http://192.168.3.174:8000/kaiguandeng/t'
 url_shiziluoding = 'http://192.168.3.174:8000/shiziluoding/szld'
@@ -33,13 +33,13 @@ index = 0
 while True:
     r = requests.post(url, data=data_64)
     # print(r.content)
-    print(r.content.decode("utf-8"))
+    # print(r.content.decode("utf-8"))
     # requests.get(url_kaiguandeng,params=data)
     # time.sleep(1)
     index =index+1
     # requests.get(url_shiziluoding, params=data)
     print(index)
-    break
+    # break
     # time.sleep(1)
 
 
