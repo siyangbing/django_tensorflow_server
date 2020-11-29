@@ -6,6 +6,7 @@ import os
 import json
 import requests
 from json import dumps
+import traceback
 
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -58,8 +59,9 @@ def shiziluoding(request):
         # 处理
         kaiguandeng.imagenet.flag = False
         # img_dir = os.path.join(ftp_dir, imgPath)
-        img_dir = "/home/db/PycharmProjects/django_tensorflow_server/test_img/shiziluoding.jpg"
+        img_dir = "/home/db/bing/django_tensorflow_server/test_img/shiziluoding.jpg"
         print("img_path:-------{}".format(imgPath))
+        print("img_dir:-------{}".format(img_dir))
         if not os.path.exists(img_dir):
             kaiguandeng.imagenet.flag = True
             return HttpResponse("找不到图片")
@@ -75,6 +77,7 @@ def shiziluoding(request):
             img_result = cjpj.draw_boxes(result_list, img)
             cv2.imwrite('/home/db/myftp/tensorflow/resutlt_szld1.jpg', img_result)
         except:
+            traceback.print_exc()
             cv2.imwrite('/home/db/myftp/tensorflow/resutlt_sdld2.jpg', img_result)
 
         # cjpj = CJPJ(crop_size, border, show_rate)

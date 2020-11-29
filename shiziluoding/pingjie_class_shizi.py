@@ -3,6 +3,7 @@ import cv2
 import tensorflow as tf
 import numpy as np
 import time
+import os
 
 # 原始图片的缩放比例
 resize_shape = 0.5
@@ -17,7 +18,7 @@ crop_size = (640, 640)
 border = 110
 show_rate = 0.52
 
-saved_model_dir = '/home/db/PycharmProjects/django_tensorflow_server/shiziluoding/saved_model'
+saved_model_dir = '/home/db/bing/django_tensorflow_server/shiziluoding/saved_model'
 config = tf.ConfigProto(allow_soft_placement=True)
 gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.9)
 config.gpu_options.allow_growth = True
