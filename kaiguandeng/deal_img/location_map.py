@@ -5,7 +5,7 @@ import cv2
 import time
 from sklearn.cluster import KMeans
 
-img_path = "/home/db/myftp/tensorflow/1.png"
+img_path = "/home/db/bing/django_tensorflow_server/test_img/kaiguandeng.jpg"
 img_resize_shape=(1920, 1080)
 model_img_input_size = (640, 480)
 saved_model_dir = '/home/db/bing/django_tensorflow_server/kaiguandeng/pb_model/saved_model'
@@ -22,6 +22,21 @@ label_dict = {'1.0': 'ku', '2.0': 'kd', '3.0': 'km', '4.0': 'u', '5.0': 'd', '6.
 # class dict
 join_label_dict = {"yskg": ["1.0", "2.0", "3.0"], "hskg": ["4.0", "5.0", "6.0", "7.0", "8.0"], "deng": ["9.0", "10.0"]}
 treshold = 0.2
+# final_label = {"d000":1,"d001":1,"d002":1,"d003":1,"d004":1,"d005":1,"d006":1,"d007":1,"d008":1,"d009":1,"d010":1,"d011":1,
+#                "d100":1,"d101":1,"d102":1,"d103":1,"d104":1,"d105":1,"d106":1,"d107":1,
+#                "d200":1,"d201":1,"d202":1,"d203":1,"d204":1,"d205":1,"d206":1,"d207":1,
+#                "y000":1,"y001":1,"y002":1,"y003":1,"y004":1,"y005":1,"y006":1,"y007":1,
+#                "y100":1,
+#                "h000":1,}
+final_label = ("d000","d001","d002","d003","d004","d005","d006","d007","d008","d009","d010","d011",
+               "d100","d101","d102","d103","d104","d105","d106","d107",
+               "d200","d201","d202","d203","d204","d205","d206","d207",
+               "y000","y001","y002","y003","y004","y005","y006","y007",
+               "y100",
+               "h000")
+
+
+
 
 y = [np.array([[[0.6194794, 0.7747532, 0.63610065, 0.78724253],
                 [0.75446314, 0.7821034, 0.7726782, 0.79639196],
@@ -225,7 +240,10 @@ class Map_location():
         return class_obj_dict
 
     def read_img(self,img_path):
-        img = cv2.imread(img_path)  # 读取图片
+        try:
+            img = cv2.imread(img_path)  # 读取图片
+        except:
+            img = img_path
         img = cv2.resize(img, self.model_img_input_size )  # 缩放到480*480
         return [img]
 
@@ -387,10 +405,22 @@ class Map_location():
 
         # result_list1 = [[x[2],x[3],x[4],x[5],x[0],x[1]] for x in result_llist]
         # result_list_points1 = self.del_iou_boxes(result_list1)
-        result_findal_list = [[[[c[4], c[5], c[0], c[1], c[2], c[3]] for c in b] for b in a] for a in result_llist]
-        # print("result_list_0000000000{}".format(str(result_llist)))
+        # result_findal_list = [[[[c[4], c[5], c[0], c[1], c[2], c[3]] for c in b] for b in a] for a in result_llist]
+        result_findal_list = [[[np.array([c[4], c[5], c[0], c[1], c[2], c[3]],dtype='float64').tolist() for c in b] for b in a] for a in result_llist]
 
-        return result_findal_list
+        result_dict = dict(zip(final_label,self.list_flatten(result_findal_list)))
+
+        print("result_list_0000000000{}".format(str(result_llist)))
+        return result_dict
+
+        # return result_findal_list
+
+    def list_flatten(self,point_list):
+        for each in point_list:
+            if not isinstance(each,list):
+                yield point_list
+            else:
+                yield from self.list_flatten(each)
 
     def draw_boxes(self,result_findal_list,img):
         for a in result_findal_list:

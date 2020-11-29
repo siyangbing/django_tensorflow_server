@@ -47,129 +47,18 @@ def base64_test(request):
         img_np_arr = np.fromstring(test_image, np.uint8)
         image = cv2.imdecode(img_np_arr, cv2.IMREAD_COLOR)
         # cv2.imwrite("./pppp.jpg",image)
-    #     print("the POST method")
-    #     concat = request.POST
-    #     postBody = request.body
-    #     print(concat)
-    #     print(type(postBody))
-    #     print(postBody)
-    # print("进入terminal页面")
-    return HttpResponse("success!!!")
-    # # 测试接受base64编码过的图片
-    # user_id = request.POST.get('username')
-    # print("user_id   {}".format(user_id))
-    # img_filename = request.POST.get('filename')
-    # print("filename   {}".format(img_filename))
-    # test_image = base64.b64decode(request.POST.get('b64'))  # 本质就是解码字符串
 
-    # upload_image_dir = "user_image"
-    #
-    # if not os.path.isdir(upload_image_dir):
-    #     os.mkdir(upload_image_dir)
-    # user_dir = os.path.join(upload_image_dir, user_id)
-    # if not os.path.isdir(user_dir):
-    #     os.mkdir(user_dir)
-    # file_path = os.path.join(user_dir, img_filename)
-    #
-    # # 写入文件
-    # try:
-    #     with open(file_path, "wb") as f:
-    #         f.write(test_image)
-    #         return "true"
-    # except:
-    #     return "error"
-
-    # base64 = request.GET.get('base64')
-    # print(base64)
-
-    # if kaiguandeng.imagenet.flag:
-    #     t0 = time.time()
-    #     # flag=True,执行并返回结果
-    #     print("执行处理")
-    #     # 处理
-    #     kaiguandeng.imagenet.flag = False
-    #     # img_dir = os.path.join(ftp_dir, imgPath)
-    #     img_dir = "/home/db/bing/django_tensorflow_server/test_img/kaiguandeng.jpg"
-    #     print("img_path:-------{}".format(imgPath))
-    #     if not os.path.exists(img_dir):
-    #         kaiguandeng.imagenet.flag = True
-    #         return HttpResponse("找不到图片")
-    #     try:
-    #         map_location = Map_location(treshold, label_dict, join_label_dict, model_img_input_size)
-    #     except:
-    #         result_list = " map_location failed!"
-    #         traceback.print_exc()
-    #         print("map_location error!")
-    #     try:
-    #         img_data_list = map_location.read_img(img_dir)
-    #     except:
-    #         result_list = " img_data_list failed!"
-    #         traceback.print_exc()
-    #         print("img_data_list error!")
-    #     # print("img_data_list------------------------{}".format(str(img_data_list)))
-    #     try:
-    #         y_list = map_location.eval_img_list(img_data_list)
-    #         # print("ylist_______________{}".format(y_list))
-    #     except:
-    #         result_list = " y_list failed!"
-    #         traceback.print_exc()
-    #         print("y_list error!")
-    #
-    #     try:
-    #         result_list = map_location.get_location(y_list)
-    #         print("result_list________{}".format(result_list))
-    #         print("++++++++++++++++++++++++++++++++++++++++++++")
-    #     except:
-    #         result_list = " result_list failed!"
-    #         traceback.print_exc()
-    #         print("result_list error!")
-    #
-    #     # print("y_list------------------------{}".format(str(y_list)))
-    #     # try:
-    #     #     result_list = map_location.get_location(y_list)
-    #     # except:
-    #     #     result_list = " result_list failed!"
-    #     #     print("result_list error!")
-    #
-    #     data = {
-    #         'result': str(result_list),
-    #         'work_id': work_id,
-    #         'title1_id': title1_id,
-    #         'step_id': step_id,
-    #         'ip': ip
-    #     }
-    #
-    #     img1 = cv2.imread(img_dir)
-    #
-    #     try:
-    #         for a in result_list:
-    #             for b in a:
-    #                 for c in b:
-    #                     # point_1 = (int(c[3] * model_img_input_size[0]), int(c[2] * model_img_input_size[1]))
-    #                     # point_2 = (int(c[5] * model_img_input_size[0]), int(c[4] * model_img_input_size[1]))
-    #                     point_1 = (int(c[3] * 1920), int(c[2] * 1080))
-    #                     point_2 = (int(c[5] * 1920), int(c[4] * 1080))
-    #                     # print(point_1,point_2)
-    #                     cv2.rectangle(img1, point_1, point_2, (0, 255, 0), 1)
-    #                     str_txt = label_dict[str(c[0])]
-    #                     cv2.putText(img1, str_txt, point_1, cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 1)
-    #         # cv2.imshow('resutlt_123', img1)
-    #         cv2.imwrite('/home/db/myftp/tensorflow/resutlt_123.jpg', img1)
-    #     except:
-    #         cv2.imwrite('/home/db/myftp/tensorflow/resutlt_124.jpg', img1)
-    #
-    #     print("time-----------{}".format(time.time() - t0))
-    #     print(str(data))
-    #     kaiguandeng.imagenet.flag = True
-    #     # cv2.imshow('resutlt_123', img_show)
-    #     # cv2.waitKey(50)
-    #     # return JsonResponse(data, safe=False)
-    #     # print(str(data))
-    #     return HttpResponse(str(data))
-    #
-    # else:
-    #     print("处理未完成")
-    #     return HttpResponse("处理未完成")
+        map_location = Map_location(treshold, label_dict, join_label_dict, model_img_input_size)
+        img_data_list = map_location.read_img(image)
+        y_list = map_location.eval_img_list(img_data_list)
+        result_list = map_location.get_location(y_list)
+        data = {
+            'user_id': user_id,
+            'img_filename': img_filename,
+            'result_list': result_list,
+        }
+    return JsonResponse(data)
+    # return HttpResponse("success!!!")
 
 
 @echoRuntime
