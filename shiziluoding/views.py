@@ -34,9 +34,11 @@ def echoRuntime(func):
 
     return wrapper
 
-
 @echoRuntime
-def shiziluoding(request):
+def shiziluoding_bak(request):
+    pass
+@echoRuntime
+def shiziluoding_bak(request):
     print("进入terminal页面")
     # 获取传入数据，为图片相对路径，需要加上ftp的路径
     imgPath = request.GET.get('imgPath')

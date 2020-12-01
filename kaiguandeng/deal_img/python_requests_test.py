@@ -5,6 +5,7 @@ import cv2
 import base64
 
 img = cv2.imread("/home/db/bing/django_tensorflow_server/test_img/kaiguandeng.jpg")
+img = cv2.imread("/home/db/bing/django_tensorflow_server/test_img/shiziluoding.jpg")
 aa=base64.b64encode(cv2.imencode('.jpg',img)[1]).decode()
 
 

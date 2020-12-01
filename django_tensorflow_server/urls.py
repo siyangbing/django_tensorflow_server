@@ -17,12 +17,12 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    # path('shiziluoding/', include('shiziluoding.urls')),
-    # path('yiziluoding/', include('yiziluoding.urls')),
-    # path('eval_img/', include('eval_img.urls')),
-    # path('fangfeizuocang/', include('fangfeizuocang.urls')),
-    # path('kougai/', include('kougai.urls')),
+    path('fangfeiduoge/', include('fangfeiduoge.urls')),
+    path('fangfeizuocang/', include('fangfeizuocang.urls')),
     path('kaiguandeng/', include('kaiguandeng.urls')),
-    # path('kaiguandeng/', include('kaiguandeng.urls')),
+    path('tongdianzuocang/', include('tongdianzuocang.urls')),
+    # path('kougai/', include('kougai.urls')),
+    # path('yiziluoding/', include('yiziluoding.urls')),
+    # path('shiziluoding/', include('shiziluoding.urls')),
     path('admin/', admin.site.urls),
 ]
