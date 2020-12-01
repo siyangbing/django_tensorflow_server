@@ -400,6 +400,7 @@ class Map_location():
         # result_llist = [[[[c[0], c[1], c[2][0], c[2][1], c[2][2], c[2][3]] for c in b] for b in a] for a in all_list]
         result_llist = [[[[c[2][0], c[2][1], c[2][2], c[2][3],c[0], c[1]] for c in b] for b in a] for a in all_list]
 
+
         for index_a,a in enumerate(result_llist):
             for index_b,b in enumerate(a):
                 # temp_list = [[x[2], x[3], x[4], x[5], x[0], x[1]] for x in b]
@@ -408,19 +409,20 @@ class Map_location():
                 # print(b)
 
 
-        # result_findal_list = [[[[c[4], c[5], c[0], c[1], c[2], c[3]] for c in b] for b in a] for a in result_llist]
+        result_findal_list = [[[np.array(c, dtype='float64').tolist() for c in b] for b in a] for a in result_llist]
 
         # flatten_list = self.list_flatten(result_llist)
         # result_list1 = [[x[2], x[3], x[4], x[5], x[0], x[1]] for x in flatten_list]
         # result_list_points1 = self.del_iou_boxes(result_list1)
+        #
 
-        result_findal_list = [[np.array([c],dtype='float64').tolist() for c in b for b in a] for a in result_llist]
+        # result_findal_list = [[ c in b for b in a] for a in result_llist]
         # result_findal_list = [
         #     [[np.array([c], dtype='float64').tolist() for c in b] for b in a] for a in
         #     result_llist]
         # result_dict = dict(zip(final_label,self.list_flatten(result_findal_list)))
 
-        print("result_dict_0000000000{}".format(result_findal_list))
+        print("result_findal_list{}".format(result_findal_list))
         # return result_dict
 
         return result_findal_list
