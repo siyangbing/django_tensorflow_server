@@ -4,6 +4,7 @@ import tensorflow as tf
 import cv2
 import time
 from sklearn.cluster import KMeans
+import math
 import os
 
 from django_tensorflow_server.settings import BASE_DIR
@@ -19,22 +20,22 @@ class LoadPbModel():
         self.meta_graph_def_sig = tf.saved_model.loader.load(self.sess, [tf.saved_model.tag_constants.SERVING], saved_model_dir)
 
     def eval_img_data_list(self,img_data_list):
-        img_data_list = []
+        img_data_list_convert = []
         for img in img_data_list:
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img_array = np.array(img, dtype=float)  # 改变数据类型为float
             img_array = img_array[np.newaxis, :, :, :]  # 增加一个维度
             input_data = np.array(img_array, dtype=np.float32)
 
-            img_data_list.append(input_data)
-        img_data = np.vstack((x for x in img_data_list))
-        input = sess.graph.get_tensor_by_name('image_tensor:0')
-        detection_boxes = sess.graph.get_tensor_by_name('detection_boxes:0')
-        detection_score = sess.graph.get_tensor_by_name('detection_scores:0')
-        detection_classes = sess.graph.get_tensor_by_name('detection_classes:0')
-        num_detections = sess.graph.get_tensor_by_name('num_detections:0')
+            img_data_list_convert.append(input_data)
+        img_data = np.vstack((x for x in img_data_list_convert))
+        input = self.sess.graph.get_tensor_by_name('image_tensor:0')
+        detection_boxes = self.sess.graph.get_tensor_by_name('detection_boxes:0')
+        detection_score = self.sess.graph.get_tensor_by_name('detection_scores:0')
+        detection_classes = self.sess.graph.get_tensor_by_name('detection_classes:0')
+        num_detections = self.sess.graph.get_tensor_by_name('num_detections:0')
         feed_dict = {input: img_data, }
-        y = sess.run([detection_boxes, detection_score, detection_classes, num_detections], feed_dict=feed_dict)
+        y = self.sess.run([detection_boxes, detection_score, detection_classes, num_detections], feed_dict=feed_dict)
         return y
 
     def read_img(self, img_path,resize_shape):
@@ -43,19 +44,52 @@ class LoadPbModel():
         except:
             img = img_path
         img = cv2.resize(img, resize_shape)  # 缩放到resize_shape
-
         return [img]
 
-    def crop_img(self,img):
-        pass
+    def crop_img(self,need_crop_img_list,crop_size,border):
+        for img in need_crop_img_list:
+            h, w = img.shape[:2]
+            self.h_num = math.floor((h - crop_size[1]) / (crop_size[1] - border)) + 2
+            self.w_num = math.floor((w - crop_size[1]) / (crop_size[1] - border)) + 2
+
+            img = cv2.copyMakeBorder(img, 0, self.h_num * crop_size[0] + border - h, 0,
+                                     self.w_num * crop_size[1] + border - w, cv2.BORDER_CONSTANT,
+                                     value=[255, 255, 255])
+            h, w = img.shape[:2]
+
+            croped_img_list = []
+            for x_l in range(self.h_num):
+                for y_l in range(self.w_num):
+                    # print(x_l, y_l)
+                    x_min = x_l * (crop_size[0] - border)
+                    x_max = x_min + crop_size[0]
+                    y_min = y_l * (crop_size[1] - border)
+                    y_max = y_min + crop_size[1]
+
+                    if x_max >= h:
+                        x_max = h
+                    if y_max >= w:
+                        y_max = w
+
+                    img_result = img[x_min:x_max, y_min:y_max]
+                    croped_img_list.append(img_result)
+            a = 33
+
+            return croped_img_list
+
+
 
 if __name__ == "__main__":
-    saved_model_dir = saved_model_dir = os.path.join(BASE_DIR,"pb_model/tongdian/kaiguandeng/saved_model")
+    saved_model_dir = saved_model_dir = os.path.join(BASE_DIR,"pb_model/fangfei/shiziluoding/saved_model")
     img_path = "/home/db/bing/django_tensorflow_server/test_img/shiziluoding.jpg"
     resize_shape = (1920,1080)
+    crop_size =(640,640)
+    border = 110
+    show_rate = 0.52
     load_pb_model = LoadPbModel(saved_model_dir)
     img_list = load_pb_model.read_img(img_path,resize_shape)
-    result_y = load_pb_model.eval_img_data_list(img_list)
+    croped_img_list = load_pb_model.crop_img(img_list,crop_size,border)
+    result_y = load_pb_model.eval_img_data_list(croped_img_list)
     a = 222
 
 
