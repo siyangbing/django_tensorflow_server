@@ -17,6 +17,7 @@ from  django.http import JsonResponse
 from shiziluoding.pingjie_class_shizi import CJPJ,crop_size,border,show_rate,resize_shape
 
 import kaiguandeng.imagenet
+import base64
 
 ftp_dir = "/home/db/myftp/tensorflow"
 
@@ -35,8 +36,46 @@ def echoRuntime(func):
     return wrapper
 
 @echoRuntime
-def shiziluoding_bak(request):
-    pass
+def shiziluoding(request):
+    if (request.method == 'POST'):
+        t0 = time.time()
+
+        img_data = request.POST.get('image')  # 本质就是解码字符串
+        tt = time.time()
+        print("接收一张图片需要{}秒".format(tt - t0))
+        # print(test_image)
+        img_byte = base64.b64decode(img_data)
+        img_np_arr = np.fromstring(img_byte, np.uint8)
+        image = cv2.imdecode(img_np_arr, cv2.IMREAD_COLOR)
+        t1 = time.time()
+        print("解码张图片需要{}秒".format(t1 - tt))
+        cv2.imwrite("./pppp.png", image)
+        t2 = time.time()
+        print("保存一张图片需要{}秒".format(t2 - t1))
+        code = 200
+        cjpj = CJPJ(crop_size, border, show_rate)
+
+        # try:
+        croped_img_list = cjpj.crop_img(image)
+        y_list = cjpj.eval_img_list(croped_img_list)
+        result_list = cjpj.pj(y_list, show_rate)
+        print("pppppppppppppppppppppppppppppppppppppppppp"+str(result_list))
+        # img = cv2.resize(image, resize_shape)
+        # img_result = cjpj.draw_boxes(result_list, img)
+        #     cv2.imwrite('/home/db/myftp/tensorflow/resutlt_szld1.jpg', img_result)
+        # except:
+        #     traceback.print_exc()
+        #     cv2.imwrite('/home/db/myftp/tensorflow/resutlt_sdld2.jpg', img_result)
+        t3 = time.time()
+        print("计算一张图片需要{}秒".format(t3 - t2))
+        data = {
+            'code': code,
+            'result': result_list,
+        }
+        t4 = time.time()
+        print("处理一张图片需要{}秒".format(t4 - t0))
+    return JsonResponse(data)
+
 @echoRuntime
 def shiziluoding_bak(request):
     print("进入terminal页面")

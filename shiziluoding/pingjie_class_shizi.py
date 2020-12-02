@@ -45,9 +45,18 @@ class CJPJ():
         self.border = border
         self.show_rate = show_rate
 
+    def read_img(self, img_path):
+        try:
+            img = cv2.imread(img_path)  # 读取图片
+        except:
+            img = img_path
+        img = cv2.resize(img, resize_shape)  # 缩放到480*480
+        return img
+
     # 拼接图片列表
     def crop_img(self, img):
-        img = cv2.resize(img, resize_shape)
+        img = self.read_img(img)
+        # img = cv2.resize(img, resize_shape)
         # cv2.imshow("sss", img)
         # cv2.imwrite("2.jpg", img)
         # cv2.waitKey(0)
@@ -257,6 +266,7 @@ class CJPJ():
                 return result_list
             else:
                 continue
+        pp = 10
         return result_list
 
 

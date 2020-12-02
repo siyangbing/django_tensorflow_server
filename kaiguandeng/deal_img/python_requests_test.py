@@ -4,26 +4,24 @@ import time
 import cv2
 import base64
 
-img = cv2.imread("/home/db/bing/django_tensorflow_server/test_img/kaiguandeng.jpg")
-img = cv2.imread("/home/db/bing/django_tensorflow_server/test_img/shiziluoding.jpg")
-aa=base64.b64encode(cv2.imencode('.jpg',img)[1]).decode()
+img1 = cv2.imread("/home/db/bing/django_tensorflow_server/test_img/kaiguandeng.jpg")
+img2 = cv2.imread("/home/db/bing/django_tensorflow_server/test_img/shiziluoding.jpg")
+aa1=base64.b64encode(cv2.imencode('.jpg',img1)[1]).decode()
+aa2=base64.b64encode(cv2.imencode('.jpg',img2)[1]).decode()
 
-
-data = {
-    'result': "11",
-    'work_id': "work_id",
-    'title1_id': "title1_id",
-    'step_id': "step_id",
-    'ip': "ip"
-}
-
-data_64 = {
+data_641 = {
     'username': "db",
     'filename': "img.png",
-    'image': aa,
+    'image': aa1,
+}
+
+data_642 = {
+    'username': "db",
+    'filename': "img.png",
+    'image': aa2,
 }
 url_kaiguandeng = 'http://192.168.3.174:8000/kaiguandeng/t'
-url_shiziluoding = 'http://192.168.3.174:8000/shiziluoding/szld'
+url_shiziluoding = 'http://192.168.3.174:8000/shiziluoding/szld/'
 url= 'http://192.168.3.174:8000/kaiguandeng/base64/'
 index = 0
 
@@ -31,13 +29,13 @@ index = 0
 # print(r.content.decode("utf-8"))
 
 while True:
-    r = requests.post(url, data=data_64)
+    r = requests.post(url, data=data_641)
     # print(r.content)
     print(r.content.decode("utf-8"))
     # requests.get(url_kaiguandeng,params=data)
     # time.sleep(1)
     index =index+1
-    # requests.get(url_shiziluoding, params=data)
+    requests.post(url_shiziluoding, data=data_642)
     print(index)
 
     break
