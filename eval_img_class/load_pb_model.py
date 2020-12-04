@@ -11,15 +11,59 @@ from django_tensorflow_server.settings import BASE_DIR
 
 
 class LoadPbModel():
-    def __init__(self,saved_model_dir):
+    def __init__(self, saved_model_dir):
         self.config = tf.ConfigProto(allow_soft_placement=True)
         self.gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5)
         self.config.gpu_options.allow_growth = True
         self.g1 = tf.Graph()
         self.sess = tf.Session(config=self.config, graph=self.g1)
-        self.meta_graph_def_sig = tf.saved_model.loader.load(self.sess, [tf.saved_model.tag_constants.SERVING], saved_model_dir)
+        self.meta_graph_def_sig = tf.saved_model.loader.load(self.sess, [tf.saved_model.tag_constants.SERVING],
+                                                             saved_model_dir)
 
-    def eval_img_data_list(self,img_data_list):
+    def read_img(self, img_path, resize_shape):
+        try:
+            img = cv2.imread(img_path)  # 读取图片
+            "/home/db/PycharmProjects/django_tensorflow_server/test_img/shiziluoding.jpg"
+            a = 11
+        except:
+            img = img_path
+            b = 22
+        img = cv2.resize(img, resize_shape)  # 缩放到resize_shape
+        return [img]
+
+    def crop_img(self, need_crop_img_list, crop_size, border):
+        self.crop_size = crop_size
+        self.border = border
+        for img in need_crop_img_list:
+            h, w = img.shape[:2]
+            self.h_num = math.floor((h - self.crop_size[1]) / (self.crop_size[1] - self.border)) + 2
+            self.w_num = math.floor((w - self.crop_size[1]) / (self.crop_size[1] - self.border)) + 2
+
+            img = cv2.copyMakeBorder(img, 0, self.h_num * self.crop_size[0] + self.border - h, 0,
+                                     self.w_num * self.crop_size[1] + self.border - w, cv2.BORDER_CONSTANT,
+                                     value=[255, 255, 255])
+            h, w = img.shape[:2]
+
+            croped_img_list = []
+            for x_l in range(self.h_num):
+                for y_l in range(self.w_num):
+                    # print(x_l, y_l)
+                    x_min = x_l * (self.crop_size[0] - self.border)
+                    x_max = x_min + self.crop_size[0]
+                    y_min = y_l * (self.crop_size[1] - self.border)
+                    y_max = y_min + self.crop_size[1]
+
+                    if x_max >= h:
+                        x_max = h
+                    if y_max >= w:
+                        y_max = w
+
+                    img_result = img[x_min:x_max, y_min:y_max]
+                    croped_img_list.append(img_result)
+            a = 33
+            return croped_img_list
+
+    def eval_img_data_list(self, img_data_list):
         img_data_list_convert = []
         for img in img_data_list:
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -38,87 +82,191 @@ class LoadPbModel():
         y = self.sess.run([detection_boxes, detection_score, detection_classes, num_detections], feed_dict=feed_dict)
         return y
 
-    def read_img(self, img_path,resize_shape):
-        try:
-            img = cv2.imread(img_path)  # 读取图片
-        except:
-            img = img_path
-        img = cv2.resize(img, resize_shape)  # 缩放到resize_shape
-        return [img]
+    def pingjie_img(self, y):
+        result_list = [[] for x in range(self.w_num * self.h_num)]
 
-    def crop_img(self,need_crop_img_list,crop_size,border):
-        for img in need_crop_img_list:
-            h, w = img.shape[:2]
-            self.h_num = math.floor((h - crop_size[1]) / (crop_size[1] - border)) + 2
-            self.w_num = math.floor((w - crop_size[1]) / (crop_size[1] - border)) + 2
+        location_list = y[0]
+        score_list = y[1]
+        class_list = y[2]
+        num_class = y[3]
 
-            img = cv2.copyMakeBorder(img, 0, self.h_num * crop_size[0] + border - h, 0,
-                                     self.w_num * crop_size[1] + border - w, cv2.BORDER_CONSTANT,
-                                     value=[255, 255, 255])
-            h, w = img.shape[:2]
+        for index1, a in enumerate(score_list):
+            for index2, b in enumerate(a):
+                if b >= show_rate:
+                    point = location_list[index1][index2] * self.crop_size[1]
+                    score = score_list[index1][index2]
+                    result_list[index1].append(
+                        [point[1], point[0], point[3], point[2], score, class_list[index1][index2]])
+        crop_img_index = 0
+        pj_result_list_points = []
+        for x_l in range(self.h_num):
+            for y_l in range(self.w_num):
+                if result_list[crop_img_index] != []:
+                    for point in result_list[crop_img_index]:
+                        px_min = point[0] + y_l * (self.crop_size[0] - self.border)
+                        py_min = point[1] + x_l * (self.crop_size[1] - self.border)
+                        px_max = point[2] + y_l * (self.crop_size[0] - self.border)
+                        py_max = point[3] + x_l * (self.crop_size[1] - self.border)
 
-            croped_img_list = []
-            for x_l in range(self.h_num):
-                for y_l in range(self.w_num):
-                    # print(x_l, y_l)
-                    x_min = x_l * (crop_size[0] - border)
-                    x_max = x_min + crop_size[0]
-                    y_min = y_l * (crop_size[1] - border)
-                    y_max = y_min + crop_size[1]
+                    pj_result_list_points.append([px_min, py_min, px_max, py_max, point[4], point[5]])
+                crop_img_index += 1
 
-                    if x_max >= h:
-                        x_max = h
-                    if y_max >= w:
-                        y_max = w
+        # pj_result_list_points = self.del_iou_boxes(final_list)
+        return pj_result_list_points
 
-                    img_result = img[x_min:x_max, y_min:y_max]
-                    croped_img_list.append(img_result)
-            a = 33
+    def del_repeat_boxes(self, pj_result_list_points):
+        result_list = pj_result_list_points
+        while 1:
+            pingjie_points_list = result_list
+            if_ok = 1
+            for point1_1 in pingjie_points_list:
+                for point2_2 in pingjie_points_list:
+                    if point1_1 != point2_2:
+                        if self.solve_coincide(point1_1, point2_2) > 0.2:
+                            # 如果重合面大于0.2就只保留得分高的检测框，删除得分低的检测框
+                            if_ok = 0
+                            if point1_1[4] > point2_2[4]:
+                                result_list.remove(point2_2)
+                            else:
+                                if point1_1 in result_list:
+                                    result_list.remove(point1_1)
+                                else:
+                                    pass
+                                    # print(point1_1)
+                                    # print(result_list)
+            if if_ok:
+                return result_list
+            else:
+                continue
+        pp = 10
+        return result_list
 
-            return croped_img_list
+    def solve_coincide(self, box1, box2):
+        # box=(xA,yA,xB,yB)
+        # 计算两个矩形框的重合度
+        if self.mat_inter(box1, box2) == True:
+            x01 = box1[0]
+            y01 = box1[1]
+            x02 = box1[2]
+            y02 = box1[3]
+            score_1 = box1[4]
 
+            x11 = box2[0]
+            y11 = box2[1]
+            x12 = box2[2]
+            y12 = box2[3]
+            score_2 = box2[4]
+
+            # x01, y01, x02, y02 = box1
+            y12 = box2[3]
+            score_2 = box2[4]
+
+            # x01, y01, x02, y02 = box1
+            # x11, y11, x12, y12 = box2
+            col = min(x02, x12) - max(x01, x11)
+            row = min(y02, y12) - max(y01, y11)
+            intersection = col * row
+            area1 = (x02 - x01) * (y02 - y01)
+            area2 = (x12 - x11) * (y12 - y11)
+            coincide = intersection / (area1 + area2 - intersection)
+            return coincide
+        else:
+            return False
+
+    def mat_inter(self, box1, box2):
+        # 判断两个矩形是否相交
+        # box=(xA,yA,xB,yB)
+        # a = box1
+        # b = box2
+        # print(a[0], a[1], a[2], a[3], a[4])
+        # print(b)
+        x01 = box1[0]
+        y01 = box1[1]
+        x02 = box1[2]
+        y02 = box1[3]
+        score_1 = box1[4]
+
+        x11 = box2[0]
+        y11 = box2[1]
+        x12 = box2[2]
+        y12 = box2[3]
+        score_2 = box2[4]
+        # x11, y11, x12, y12, score = box2
+
+        lx = abs((x01 + x02) / 2 - (x11 + x12) / 2)
+        ly = abs((y01 + y02) / 2 - (y11 + y12) / 2)
+        sax = abs(x01 - x02)
+        sbx = abs(x11 - x12)
+        say = abs(y01 - y02)
+        sby = abs(y11 - y12)
+        if lx <= (sax + sbx) / 2 and ly <= (say + sby) / 2:
+            return True
+        else:
+            return False
+
+    def draw_boxes(self, point_list, img):
+        bb = []
+        for x in self.yield_points_from_list(point_list):
+            bb.append(x)
+        c =1
+        # for each in point_list:
+        #     if not isinstance(each, list):
+        #         yield point_list
+        #     else:
+        #         yield from self.draw_boxes(each)
+        # for last_point in point_list:
+        #     # 绘制最终拼接的检测结果
+        #     cv2.rectangle(img, (int(last_point[0]), int(last_point[1])), (int(last_point[2]), int(last_point[3])),
+        #                   (0, 255, 0), 1, 8)
+        #     cv2.putText(img, str(last_point[4])[:6], (int(last_point[0]), int(last_point[1])),
+        #                 cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 1)
+        #     cv2.putText(img, str(last_point[5]), (int(last_point[0]), int(last_point[1] + 10)),
+        #                 cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 1)
+
+    def yield_points_from_list(self, point_list):
+        for each in point_list:
+            if not isinstance(each, list):
+                yield point_list
+            else:
+                self.yield_points_from_list(each)
 
 
 if __name__ == "__main__":
-    saved_model_dir = saved_model_dir = os.path.join(BASE_DIR,"pb_model/fangfei/shiziluoding/saved_model")
-    img_path = "/home/db/bing/django_tensorflow_server/test_img/shiziluoding.jpg"
-    resize_shape = (1920,1080)
-    crop_size =(640,640)
+    saved_model_dir = os.path.join(BASE_DIR, "pb_model/fangfei/shiziluoding/saved_model")
+    img_path = os.path.join(BASE_DIR, "test_img/shiziluoding.jpg")
+    resize_shape = (1920, 1080)
+    crop_size = (640, 640)
     border = 110
     show_rate = 0.52
     load_pb_model = LoadPbModel(saved_model_dir)
-    img_list = load_pb_model.read_img(img_path,resize_shape)
-    croped_img_list = load_pb_model.crop_img(img_list,crop_size,border)
-    result_y = load_pb_model.eval_img_data_list(croped_img_list)
+    img_list = load_pb_model.read_img(img_path, resize_shape)
+    croped_img_list = load_pb_model.crop_img(img_list, crop_size, border)
+    y = load_pb_model.eval_img_data_list(croped_img_list)
+    result_list = load_pb_model.pingjie_img(y)
+    load_pb_model.draw_boxes(result_list,img="123")
     a = 222
 
-
-
-
-
-
 img_path = "/home/db/bing/django_tensorflow_server/test_img/kaiguandeng.jpg"
-img_resize_shape=(1920, 1080)
+img_resize_shape = (1920, 1080)
 model_img_input_size = (640, 480)
-saved_model_dir = os.path.join(BASE_DIR,"pb_model/tongdian/kaiguandeng/saved_model")
+saved_model_dir = os.path.join(BASE_DIR, "pb_model/tongdian/kaiguandeng/saved_model")
 
 config = tf.ConfigProto(allow_soft_placement=True)
 gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5)
 config.gpu_options.allow_growth = True
 g1 = tf.Graph()
-sess = tf.Session(config=config,graph=g1)
+sess = tf.Session(config=config, graph=g1)
 meta_graph_def_sig = tf.saved_model.loader.load(sess, [tf.saved_model.tag_constants.SERVING], saved_model_dir)
-
 
 label_dict = {'1.0': 'ku', '2.0': 'kd', '3.0': 'km', '4.0': 'u', '5.0': 'd', '6.0': 'l', '7.0': 'r', '8.0': 'm',
               '9.0': 'k', '10.0': 'g'}
 # class dict
 join_label_dict = {"yskg": ["1.0", "2.0", "3.0"], "hskg": ["4.0", "5.0", "6.0", "7.0", "8.0"], "deng": ["9.0", "10.0"]}
 treshold = 0.2
-final_label = ("d000","d001","d002","d003","d004","d005","d006","d007","d008","d009","d010","d011",
-               "d100","d101","d102","d103","d104","d105","d106","d107",
-               "d200","d201","d202","d203","d204","d205","d206","d207",
-               "y000","y001","y002","y003","y004","y005","y006","y007",
+final_label = ("d000", "d001", "d002", "d003", "d004", "d005", "d006", "d007", "d008", "d009", "d010", "d011",
+               "d100", "d101", "d102", "d103", "d104", "d105", "d106", "d107",
+               "d200", "d201", "d202", "d203", "d204", "d205", "d206", "d207",
+               "y000", "y001", "y002", "y003", "y004", "y005", "y006", "y007",
                "y100",
                "h000")
 
@@ -134,9 +282,10 @@ def echoRuntime(func):
 
     return wrapper
 
+
 class Map_location():
     # @echoRuntime
-    def __init__(self, threshold, label_dict, join_label_dict,model_img_input_size):
+    def __init__(self, threshold, label_dict, join_label_dict, model_img_input_size):
         # self.location_list = y[0][0]
         # self.score_list = y[1][0]
         # self.class_list = y[2][0]
@@ -194,12 +343,12 @@ class Map_location():
         return class_obj_dict
 
     @echoRuntime
-    def read_img(self,img_path):
+    def read_img(self, img_path):
         try:
             img = cv2.imread(img_path)  # 读取图片
         except:
             img = img_path
-        img = cv2.resize(img, self.model_img_input_size )  # 缩放到480*480
+        img = cv2.resize(img, self.model_img_input_size)  # 缩放到480*480
         return [img]
 
     @echoRuntime
@@ -321,7 +470,6 @@ class Map_location():
                 continue
         return result_list
 
-
     # @echoRuntime
     def get_average_xy(self, value_one):
         return [[v[0], v[1], v[2], (v[2][1] + v[2][3]) / 2, (v[2][0] + v[2][2]) / 2] for v in value_one]
@@ -335,7 +483,7 @@ class Map_location():
         plt.show()
 
     @echoRuntime
-    def get_location(self,y):
+    def get_location(self, y):
         self.location_list = y[0][0]
         self.score_list = y[1][0]
         self.class_list = y[2][0]
@@ -352,16 +500,14 @@ class Map_location():
         all_list = [result_deng, result_yskg, result_hskg]
 
         # result_llist = [[[[c[0], c[1], c[2][0], c[2][1], c[2][2], c[2][3]] for c in b] for b in a] for a in all_list]
-        result_llist = [[[[c[2][0], c[2][1], c[2][2], c[2][3],c[0], c[1]] for c in b] for b in a] for a in all_list]
+        result_llist = [[[[c[2][0], c[2][1], c[2][2], c[2][3], c[0], c[1]] for c in b] for b in a] for a in all_list]
 
-
-        for index_a,a in enumerate(result_llist):
-            for index_b,b in enumerate(a):
+        for index_a, a in enumerate(result_llist):
+            for index_b, b in enumerate(a):
                 # temp_list = [[x[2], x[3], x[4], x[5], x[0], x[1]] for x in b]
                 result_llist[index_a][index_b] = self.del_iou_boxes(b)
                 # ppp = 3
                 # print(b)
-
 
         result_findal_list = [[[np.array(c, dtype='float64').tolist() for c in b] for b in a] for a in result_llist]
 
@@ -381,14 +527,14 @@ class Map_location():
 
         return result_findal_list
 
-    def list_flatten(self,point_list):
+    def list_flatten(self, point_list):
         for each in point_list:
-            if not isinstance(each,list):
+            if not isinstance(each, list):
                 yield point_list
             else:
                 yield from self.list_flatten(each)
 
-    def draw_boxes(self,result_findal_list,img):
+    def draw_boxes(self, result_findal_list, img):
         for a in result_findal_list:
             for b in a:
                 for c in b:
@@ -402,7 +548,6 @@ class Map_location():
                     # print("qqq================={}".format(str_txt))
                     cv2.putText(img, str_txt, point_1, cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 0, 0), 1)
         return img
-
 
 # if __name__ == "__main__":
 #     img = cv2.imread(img_path)
@@ -419,4 +564,3 @@ class Map_location():
 #     cv2.imshow("ppp",img)
 #     # cv2.imwrite("result.jpg",img)
 #     cv2.waitKey(0)
-

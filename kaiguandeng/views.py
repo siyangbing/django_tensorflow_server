@@ -13,12 +13,13 @@ import numpy as np
 from django.http import JsonResponse
 import base64
 
-from kaiguandeng.deal_img.location_map import Map_location, model_img_input_size, label_dict, config,saved_model_dir,\
+from kaiguandeng.deal_img.location_map import Map_location, model_img_input_size, label_dict, config, saved_model_dir, \
     join_label_dict, treshold
 
 import kaiguandeng.imagenet
 
 ftp_dir = "/home/db/myftp/tensorflow"
+
 
 # sess_kaiguandeng = tf.Session(config=config)
 # meta_graph_def = tf.saved_model.loader.load(sess_kaiguandeng, [tf.saved_model.tag_constants.SERVING], saved_model_dir)
@@ -34,6 +35,7 @@ def echoRuntime(func):
 
     return wrapper
 
+
 # @echoRuntime
 def base64_test(request):
     if (request.method == 'POST'):
@@ -48,7 +50,7 @@ def base64_test(request):
         image = cv2.imdecode(img_np_arr, cv2.IMREAD_COLOR)
         t1 = time.time()
         print("解码张图片需要{}秒".format(t1 - tt))
-        cv2.imwrite("./pppp.png",image)
+        cv2.imwrite("./pppp.png", image)
         t2 = time.time()
         print("保存一张图片需要{}秒".format(t2 - t1))
         code = 200
@@ -60,14 +62,21 @@ def base64_test(request):
         except:
             code = 0
             result_list = []
-        t3 =time.time()
+        num = 0
+        for x in result_list:
+            for y in x:
+                for z in y:
+                    num += 1
+        t3 = time.time()
+        print("num--------------------{}".format(num))
         print("计算一张图片需要{}秒".format(t3 - t2))
         data = {
             'code': code,
+            'num':num,
             'result': result_list,
         }
         t4 = time.time()
-        print("处理一张图片需要{}秒".format(t4-t0))
+        print("处理一张图片需要{}秒".format(t4 - t0))
     return JsonResponse(data)
     # return HttpResponse("success!!!")
 
@@ -164,7 +173,6 @@ def terminal(request):
             cv2.imwrite('/home/db/myftp/tensorflow/resutlt_123.jpg', img1)
         except:
             cv2.imwrite('/home/db/myftp/tensorflow/resutlt_124.jpg', img1)
-
 
         print("time-----------{}".format(time.time() - t0))
         print(str(data))

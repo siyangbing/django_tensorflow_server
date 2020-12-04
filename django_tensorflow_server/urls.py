@@ -23,6 +23,6 @@ urlpatterns = [
     # path('tongdianzuocang/', include('tongdianzuocang.urls')),
     # path('kougai/', include('kougai.urls')),
     # path('yiziluoding/', include('yiziluoding.urls')),
-    path('shiziluoding/', include('shiziluoding.urls')),
+    # path('shiziluoding/', include('shiziluoding.urls')),
     path('admin/', admin.site.urls),
 ]
