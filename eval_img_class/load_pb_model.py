@@ -239,6 +239,74 @@ class LoadPbModel():
                 # 如果当前元素不是子元素，那么继续进入下一层判断
                 yield from self.yield_points_from_list(each)
 
+    # def get_location(self, y):
+    #     self.location_list = y[0][0]
+    #     self.score_list = y[1][0]
+    #     self.class_list = y[2][0]
+    #     self.num = y[3]
+    #
+    #     class_obj_dict = {k: self.get_average_xy(v) for k, v in self.map_label().items()}
+    #     result_deng = self.julei(3, class_obj_dict["deng"], "hang")
+    #     result_yskg = self.julei(2, class_obj_dict["yskg"], "hang")
+    #     result_hskg = self.julei(1, class_obj_dict["hskg"], "hang")
+    #
+    #     all_list = [result_deng, result_yskg, result_hskg]
+    #
+    #     # result_llist = [[[[c[0], c[1], c[2][0], c[2][1], c[2][2], c[2][3]] for c in b] for b in a] for a in all_list]
+    #     result_llist = [[[[c[2][0], c[2][1], c[2][2], c[2][3], c[0], c[1]] for c in b] for b in a] for a in all_list]
+    #
+    #     for index_a, a in enumerate(result_llist):
+    #         for index_b, b in enumerate(a):
+    #             # temp_list = [[x[2], x[3], x[4], x[5], x[0], x[1]] for x in b]
+    #             result_llist[index_a][index_b] = self.del_repeat_boxes(b)
+    #             # ppp = 3
+    #             # print(b)
+    #
+    #     result_findal_list = [[[np.array(c, dtype='float64').tolist() for c in b] for b in a] for a in result_llist]
+    #
+    #     print("result_findal_list{}".format(result_findal_list))
+    #
+    #     return result_findal_list
+    #
+    # def julei(self, class_num, point_list, key):
+    #     if key == "lie":
+    #         key_index = 3
+    #         index2 = 4
+    #     else:
+    #         key_index = 4
+    #         index2 = 3
+    #     # t0 =time.time()
+    #     x1 = np.zeros(len(point_list))
+    #     x2 = np.array([v[key_index] for v in point_list])
+    #     x = np.array(list(zip(x1, x2))).reshape(len(x1), 2)
+    #     kmeans = KMeans(n_clusters=class_num)  # n_clusters:number of cluster
+    #     kmeans.fit(x)
+    #     result = list(kmeans.labels_)
+    #     hang_list = [[] for i in range(class_num)]
+    #     for index, value in enumerate(result):
+    #         hang_list[value].append(tuple(point_list[index]))
+    #
+    #     for index, value in enumerate(hang_list):
+    #         # print(value)
+    #         temp_tuple = sorted(value, key=lambda x: x[index2])
+    #         hang_list[index] = tuple(temp_tuple)
+    #     hang_list = sorted(hang_list, key=lambda x: x[0][key_index])
+    #     return hang_list
+    #
+    # def map_label(self):
+    #     point_dict = {k: [] for k in self.label_dict}
+    #     class_obj_dict = {k: [] for k in self.join_label_dict}
+    #     for index, socre in enumerate(self.score_list):
+    #         if socre >= self.threshold:
+    #             point_info_one = [self.class_list[index], self.score_list[index], list(self.location_list[index])]
+    #             point_dict[str(self.class_list[index])].append(point_info_one)
+    #
+    #     for obj_key in point_dict:
+    #         for class_label in self.join_label_dict:
+    #             if obj_key in self.join_label_dict[class_label]:
+    #                 class_obj_dict[class_label].extend(point_dict[obj_key])
+    #     # print(class_obj_dict)
+    #     return class_obj_dict
 
 
 if __name__ == "__main__":
