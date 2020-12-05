@@ -21,10 +21,10 @@ class LoadPbModel():
                                                              saved_model_dir)
 
     def read_img(self, img_path, resize_shape):
+        # 读取图片，支持文件路径和frame
         try:
             img = cv2.imread(img_path)  # 读取图片
-            "/home/db/PycharmProjects/django_tensorflow_server/test_img/shiziluoding.jpg"
-            a = 11
+            # a = 11
         except:
             img = img_path
             b = 22
@@ -32,6 +32,7 @@ class LoadPbModel():
         return [img]
 
     def crop_img(self, need_crop_img_list, crop_size, border):
+        # 裁剪图片
         self.crop_size = crop_size
         self.border = border
         for img in need_crop_img_list:
@@ -64,6 +65,7 @@ class LoadPbModel():
             return croped_img_list
 
     def eval_img_data_list(self, img_data_list):
+        # 模型推断图片
         img_data_list_convert = []
         for img in img_data_list:
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -82,7 +84,8 @@ class LoadPbModel():
         y = self.sess.run([detection_boxes, detection_score, detection_classes, num_detections], feed_dict=feed_dict)
         return y
 
-    def pingjie_img(self, y):
+    def pingjie_img(self, y, img, repeat_iou):
+        # 拼接图片
         result_list = [[] for x in range(self.w_num * self.h_num)]
 
         location_list = y[0]
@@ -94,6 +97,7 @@ class LoadPbModel():
             for index2, b in enumerate(a):
                 if b >= show_rate:
                     point = location_list[index1][index2] * self.crop_size[1]
+                    # point = location_list[index1][index2]
                     score = score_list[index1][index2]
                     result_list[index1].append(
                         [point[1], point[0], point[3], point[2], score, class_list[index1][index2]])
@@ -103,18 +107,19 @@ class LoadPbModel():
             for y_l in range(self.w_num):
                 if result_list[crop_img_index] != []:
                     for point in result_list[crop_img_index]:
-                        px_min = point[0] + y_l * (self.crop_size[0] - self.border)
-                        py_min = point[1] + x_l * (self.crop_size[1] - self.border)
-                        px_max = point[2] + y_l * (self.crop_size[0] - self.border)
-                        py_max = point[3] + x_l * (self.crop_size[1] - self.border)
+                        px_min = (point[0] + y_l * (self.crop_size[0] - self.border)) / img.shape[0]
+                        py_min = (point[1] + x_l * (self.crop_size[1] - self.border)) / img.shape[1]
+                        px_max = (point[2] + y_l * (self.crop_size[0] - self.border)) / img.shape[0]
+                        py_max = (point[3] + x_l * (self.crop_size[1] - self.border)) / img.shape[1]
 
-                    pj_result_list_points.append([px_min, py_min, px_max, py_max, point[4], point[5]])
+                        pj_result_list_points.append([px_min, py_min, px_max, py_max, point[4], point[5]])
                 crop_img_index += 1
 
-        # pj_result_list_points = self.del_iou_boxes(final_list)
+        pj_result_list_points = self.del_repeat_boxes(pj_result_list_points, repeat_iou)
         return pj_result_list_points
 
-    def del_repeat_boxes(self, pj_result_list_points):
+    def del_repeat_boxes(self, pj_result_list_points, repeat_iou):
+        # 删除多余的矩形框
         result_list = pj_result_list_points
         while 1:
             pingjie_points_list = result_list
@@ -122,7 +127,7 @@ class LoadPbModel():
             for point1_1 in pingjie_points_list:
                 for point2_2 in pingjie_points_list:
                     if point1_1 != point2_2:
-                        if self.solve_coincide(point1_1, point2_2) > 0.2:
+                        if self.solve_coincide(point1_1, point2_2) > repeat_iou:
                             # 如果重合面大于0.2就只保留得分高的检测框，删除得分低的检测框
                             if_ok = 0
                             if point1_1[4] > point2_2[4]:
@@ -175,11 +180,6 @@ class LoadPbModel():
 
     def mat_inter(self, box1, box2):
         # 判断两个矩形是否相交
-        # box=(xA,yA,xB,yB)
-        # a = box1
-        # b = box2
-        # print(a[0], a[1], a[2], a[3], a[4])
-        # print(b)
         x01 = box1[0]
         y01 = box1[1]
         x02 = box1[2]
@@ -205,30 +205,40 @@ class LoadPbModel():
             return False
 
     def draw_boxes(self, point_list, img):
-        bb = []
+        # point_list = [[[1],[1],[1]],
+        #               [[2],[2]],
+        #               [3],
+        #               [[[[4],[4]]],[4],[4],[4]],]
+        yield_point_list = []
         for x in self.yield_points_from_list(point_list):
-            bb.append(x)
-        c =1
-        # for each in point_list:
-        #     if not isinstance(each, list):
-        #         yield point_list
-        #     else:
-        #         yield from self.draw_boxes(each)
-        # for last_point in point_list:
-        #     # 绘制最终拼接的检测结果
-        #     cv2.rectangle(img, (int(last_point[0]), int(last_point[1])), (int(last_point[2]), int(last_point[3])),
-        #                   (0, 255, 0), 1, 8)
-        #     cv2.putText(img, str(last_point[4])[:6], (int(last_point[0]), int(last_point[1])),
-        #                 cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 1)
-        #     cv2.putText(img, str(last_point[5]), (int(last_point[0]), int(last_point[1] + 10)),
-        #                 cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 1)
+            yield_point_list.append(x)
+        # c =1
+        for last_point in yield_point_list:
+            # 绘制最终拼接的检测结果
+            cv2.rectangle(img, (int(last_point[0] * img.shape[0]), int(last_point[1] * img.shape[1])),
+                          (int(last_point[2] * img.shape[0]), int(last_point[3] * img.shape[1])),
+                          (0, 255, 0), 1, 8)
+            cv2.putText(img, str(last_point[4])[:6],
+                        (int(last_point[0] * img.shape[0]), int(last_point[1] * img.shape[1])),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 1)
+            cv2.putText(img, str(last_point[5]),
+                        (int(last_point[0] * img.shape[0]), int(last_point[1] * img.shape[1] + 10)),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 1)
+        return img
 
     def yield_points_from_list(self, point_list):
+        # 从point_list中迭代出每一个boxes
         for each in point_list:
+            # 如果子元素不列表，当前元素就是boxes元素
             if not isinstance(each, list):
+                # yield需要的boxe值
                 yield point_list
+                # 判断完需要跳出循环，否则或多次yield同一个boxes
+                break
             else:
-                self.yield_points_from_list(each)
+                # 如果当前元素不是子元素，那么继续进入下一层判断
+                yield from self.yield_points_from_list(each)
+
 
 
 if __name__ == "__main__":
@@ -237,13 +247,16 @@ if __name__ == "__main__":
     resize_shape = (1920, 1080)
     crop_size = (640, 640)
     border = 110
-    show_rate = 0.52
+    show_rate = 0.5
+    repeat_iou = 0.2
     load_pb_model = LoadPbModel(saved_model_dir)
     img_list = load_pb_model.read_img(img_path, resize_shape)
     croped_img_list = load_pb_model.crop_img(img_list, crop_size, border)
     y = load_pb_model.eval_img_data_list(croped_img_list)
-    result_list = load_pb_model.pingjie_img(y)
-    load_pb_model.draw_boxes(result_list,img="123")
+    result_list = load_pb_model.pingjie_img(y, img_list[0], repeat_iou)
+    img_resuit = load_pb_model.draw_boxes(result_list, img=img_list[0])
+    cv2.imshow("img", img_resuit)
+    cv2.waitKey(0)
     a = 222
 
 img_path = "/home/db/bing/django_tensorflow_server/test_img/kaiguandeng.jpg"
