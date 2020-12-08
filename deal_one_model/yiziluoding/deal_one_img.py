@@ -1,5 +1,6 @@
 import os
 
+import tensorflow as tf
 import cv2
 from django_tensorflow_server.settings import BASE_DIR
 
@@ -14,10 +15,18 @@ border = 110
 show_rate = 0.5
 repeat_iou = 0.2
 
+config = tf.ConfigProto(allow_soft_placement=True)
+gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5)
+config.gpu_options.allow_growth = True
+g1 = tf.Graph()
+sess = tf.Session(config=config, graph=g1)
+meta_graph_def_sig = tf.saved_model.loader.load(sess, [tf.saved_model.tag_constants.SERVING], saved_model_dir)
+
+
 
 class YhiZiLuoDingEval():
-    def __init__(self, model_path=model_path):
-        self.load_pb_model = LoadPbModel(model_path)
+    def __init__(self, sess=sess):
+        self.load_pb_model = LoadPbModel(sess)
 
     def get_detect_result(self, img_path, resize_shape=resize_shape, crop_size=crop_size, border=border,
                           show_rate=show_rate, repeat_iou=repeat_iou):

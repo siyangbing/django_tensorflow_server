@@ -196,7 +196,7 @@ class Map_location():
         self.model_img_input_size = model_img_input_size
 
     # @echoRuntime
-    def takeSecond(sellf, elem):
+    def takeSecond(self, elem):
         # print(elem)
         return elem[0][2]
 

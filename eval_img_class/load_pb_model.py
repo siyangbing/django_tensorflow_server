@@ -11,14 +11,16 @@ from django_tensorflow_server.settings import BASE_DIR
 
 
 class LoadPbModel():
-    def __init__(self, saved_model_dir):
-        self.config = tf.ConfigProto(allow_soft_placement=True)
-        self.gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5)
-        self.config.gpu_options.allow_growth = True
-        self.g1 = tf.Graph()
-        self.sess = tf.Session(config=self.config, graph=self.g1)
-        self.meta_graph_def_sig = tf.saved_model.loader.load(self.sess, [tf.saved_model.tag_constants.SERVING],
-                                                             saved_model_dir)
+    def __init__(self,sess):
+        self.sess =sess
+        pass
+        # self.config = tf.ConfigProto(allow_soft_placement=True)
+        # self.gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5)
+        # self.config.gpu_options.allow_growth = True
+        # self.g1 = tf.Graph()
+        # self.sess = tf.Session(config=self.config, graph=self.g1)
+        # self.meta_graph_def_sig = tf.saved_model.loader.load(self.sess, [tf.saved_model.tag_constants.SERVING],
+        #                                                      saved_model_dir)
 
     def read_img(self, img_path, resize_shape):
         # 读取图片，支持文件路径和frame
