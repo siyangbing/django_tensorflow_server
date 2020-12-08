@@ -10,44 +10,46 @@ import os
 from django_tensorflow_server.settings import BASE_DIR
 
 
+# 自定义通用的识别类
 class LoadPbModel():
+    # 初始化传入sess对象
     def __init__(self, sess):
         self.sess = sess
-        pass
-        # self.config = tf.ConfigProto(allow_soft_placement=True)
-        # self.gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5)
-        # self.config.gpu_options.allow_growth = True
-        # self.g1 = tf.Graph()
-        # self.sess = tf.Session(config=self.config, graph=self.g1)
-        # self.meta_graph_def_sig = tf.saved_model.loader.load(self.sess, [tf.saved_model.tag_constants.SERVING],
-        #                                                      saved_model_dir)
 
+    # 读取图片
     def read_img(self, img_path, resize_shape):
         # 读取图片，支持文件路径和frame
         try:
             img = cv2.imread(img_path)  # 读取图片
-            # a = 11
         except:
-            img = img_path
-            b = 22
-        img = cv2.resize(img, resize_shape)  # 缩放到resize_shape
+            img = img_path  # 如果读取图片失败代表传入的是frame对象
+        # 缩放到resize_shape
+        img = cv2.resize(img, resize_shape)
         return [img]
 
+    # 裁剪图片
     def crop_img(self, need_crop_img_list, crop_size, border):
-        # 裁剪图片
-        self.crop_size = crop_size
-        self.border = border
+        self.crop_size = crop_size  # 裁剪图片的大小
+        self.border = border  # 裁剪图片的重合区域
         for img in need_crop_img_list:
             h, w = img.shape[:2]
-            self.h_num = math.floor((h - self.crop_size[1]) / (self.crop_size[1] - self.border)) + 2
+            # 计算大图片需要裁剪成多少行多少列
+            self.h_num = math.floor((h - self.crop_size[0]) / (self.crop_size[0] - self.border)) + 2
             self.w_num = math.floor((w - self.crop_size[1]) / (self.crop_size[1] - self.border)) + 2
 
-            img = cv2.copyMakeBorder(img, 0, self.h_num * self.crop_size[0] + self.border - h, 0,
-                                     self.w_num * self.crop_size[1] + self.border - w, cv2.BORDER_CONSTANT,
+            # 补齐边界白像素的宽度的单位
+            b_h = self.crop_size[0] - ((h - self.crop_size[0]) % (self.crop_size[0] - border)) - border
+            b_w = self.crop_size[1] - ((w - self.crop_size[1]) % (self.crop_size[1] - border)) - border
+            # 为了防止裁剪后边缘图像大小不一，需要用白色像素补齐边缘
+            img = cv2.copyMakeBorder(img, 0, b_h, 0,
+                                     b_w, cv2.BORDER_CONSTANT,
                                      value=[255, 255, 255])
+            # 补齐边缘后的h,w
             h, w = img.shape[:2]
 
+            # 裁剪后的图片列表
             croped_img_list = []
+            # 裁剪图片
             for x_l in range(self.h_num):
                 for y_l in range(self.w_num):
                     # print(x_l, y_l)
@@ -126,11 +128,6 @@ class LoadPbModel():
             for y_l in range(self.w_num):
                 if result_list[crop_img_index] != []:
                     for point in result_list[crop_img_index]:
-                        # px_min = (point[0] + y_l * (self.crop_size[0] - self.border)) / img.shape[0]
-                        # py_min = (point[1] + x_l * (self.crop_size[1] - self.border)) / img.shape[1]
-                        # px_max = (point[2] + y_l * (self.crop_size[0] - self.border)) / img.shape[0]
-                        # py_max = (point[3] + x_l * (self.crop_size[1] - self.border)) / img.shape[1]
-
                         px_min = (point[0] + y_l * (self.crop_size[0] - self.border)) / img.shape[1]
                         py_min = (point[1] + x_l * (self.crop_size[1] - self.border)) / img.shape[0]
                         px_max = (point[2] + y_l * (self.crop_size[0] - self.border)) / img.shape[1]
@@ -246,7 +243,7 @@ class LoadPbModel():
                         (int(last_point[0] * img.shape[1]), int(last_point[1] * img.shape[0])),
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 1)
             cv2.putText(img, str(last_point[5]),
-                        (int(last_point[0] * img.shape[1]), int(last_point[1] * img.shape[0]+10)),
+                        (int(last_point[0] * img.shape[1]), int(last_point[1] * img.shape[0] + 10)),
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 1)
         return img
 
