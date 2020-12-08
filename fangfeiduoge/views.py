@@ -6,10 +6,12 @@ from django.http import HttpResponse
 import tensorflow as tf
 import cv2
 import numpy as np
-from  django.http import JsonResponse
+from django.http import JsonResponse
 
 from deal_one_model.shiziluoding.deal_one_img import ShiZiLuoDingEval
 from deal_one_model.yiziluoding.deal_one_img import YhiZiLuoDingEval
+from deal_one_model.kougai.deal_one_img import KouGaiEval
+
 
 # Create your views here.
 
@@ -30,18 +32,6 @@ def fangfeiduoge(request):
         print("保存一张图片需要{}秒".format(t2 - t1))
         code = 200
 
-        # # load_pb_model_szld = ShiZiLuoDingEval()
-        # # img_list_szld = load_pb_model_szld.get_detect_result(image)
-        # # print("img_list_szld {}".format(img_list_szld))
-        # # load_pb_model_yzld = YhiZiLuoDingEval()
-        # # img_list_yzld = load_pb_model_yzld.get_detect_result(image)
-        # # print("img_list_yzld {}".format(img_list_yzld))
-        #
-        # a = 3
-        #
-        # # img_result = load_pb_model.draw_boxes(img_list, img_path)
-
-
         try:
             load_pb_model_szld = ShiZiLuoDingEval()
             img_list_szld = load_pb_model_szld.get_detect_result(image)
@@ -49,8 +39,11 @@ def fangfeiduoge(request):
             load_pb_model_yzld = YhiZiLuoDingEval()
             img_list_yzld = load_pb_model_yzld.get_detect_result(image)
             print("img_list_yzld {}".format(img_list_yzld))
-            result_list = img_list_szld+img_list_yzld
-            print("all_result  {}".format(img_list_yzld))
+            load_pb_model_kg = KouGaiEval()
+            img_list_kg = load_pb_model_kg.get_detect_result(image)
+            print("img_list_kg  {}".format(img_list_kg))
+            result_list = img_list_szld + img_list_yzld + img_list_kg
+            print("result_list  {}".format(result_list))
         except:
             code = 0
             result_list = []

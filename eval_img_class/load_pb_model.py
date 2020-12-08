@@ -11,8 +11,8 @@ from django_tensorflow_server.settings import BASE_DIR
 
 
 class LoadPbModel():
-    def __init__(self,sess):
-        self.sess =sess
+    def __init__(self, sess):
+        self.sess = sess
         pass
         # self.config = tf.ConfigProto(allow_soft_placement=True)
         # self.gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5)
@@ -86,44 +86,24 @@ class LoadPbModel():
         y = self.sess.run([detection_boxes, detection_score, detection_classes, num_detections], feed_dict=feed_dict)
         return y
 
-    def return_result(self,y,show_rate):
+    def get_img_result_list(self, y, repeat_iou=0.3, show_rate=0.5):
         self.location_list = y[0][0]
         self.score_list = y[1][0]
         self.class_list = y[2][0]
         self.num = y[3]
 
-        for index,point in zip(self.score_list):
-            pass
+        result_list = []
 
-        # class_obj_dict = {k: self.get_average_xy(v) for k, v in self.map_label().items()}
+        for index, point in enumerate(self.score_list):
+            if point >= show_rate:
+                one_boxes = [self.location_list[index][1], self.location_list[index][0], self.location_list[index][3],
+                             self.location_list[index][2], point, self.class_list[index]]
+                result_list.append(one_boxes)
 
-        # result_list_points = self.del_iou_boxes(final_list)
-        # result = self.julei(3,class_obj_dict["yskg"])
-        # result_deng = self.julei(3, class_obj_dict["deng"], "hang")
-        # result_yskg = self.julei(2, class_obj_dict["yskg"], "hang")
-        # result_hskg = self.julei(1, class_obj_dict["hskg"], "hang")
+        result_list = self.del_repeat_boxes(result_list, repeat_iou)
+        return result_list
 
-        # all_list = [result_deng, result_yskg, result_hskg]
-
-        # result_llist = [[[[c[0], c[1], c[2][0], c[2][1], c[2][2], c[2][3]] for c in b] for b in a] for a in all_list]
-        # result_llist = [[[[c[2][0], c[2][1], c[2][2], c[2][3], c[0], c[1]] for c in b] for b in a] for a in all_list]
-
-        # for index_a, a in enumerate(result_llist):
-        #     for index_b, b in enumerate(a):
-        #         # temp_list = [[x[2], x[3], x[4], x[5], x[0], x[1]] for x in b]
-        #         result_llist[index_a][index_b] = self.del_iou_boxes(b)
-        #         # ppp = 3
-        #         # print(b)
-        #
-        # result_findal_list = [[[np.array(c, dtype='float64').tolist() for c in b] for b in a] for a in result_llist]
-        #
-        # print("result_findal_list{}".format(result_findal_list))
-        # # return result_dict
-
-        return 1
-
-
-    def pingjie_img(self, y, img, repeat_iou,show_rate):
+    def pingjie_img(self, y, img, repeat_iou=0.2, show_rate=0.5):
         # 拼接图片
         result_list = [[] for x in range(self.w_num * self.h_num)]
 
@@ -146,10 +126,15 @@ class LoadPbModel():
             for y_l in range(self.w_num):
                 if result_list[crop_img_index] != []:
                     for point in result_list[crop_img_index]:
-                        px_min = (point[0] + y_l * (self.crop_size[0] - self.border)) / img.shape[0]
-                        py_min = (point[1] + x_l * (self.crop_size[1] - self.border)) / img.shape[1]
-                        px_max = (point[2] + y_l * (self.crop_size[0] - self.border)) / img.shape[0]
-                        py_max = (point[3] + x_l * (self.crop_size[1] - self.border)) / img.shape[1]
+                        # px_min = (point[0] + y_l * (self.crop_size[0] - self.border)) / img.shape[0]
+                        # py_min = (point[1] + x_l * (self.crop_size[1] - self.border)) / img.shape[1]
+                        # px_max = (point[2] + y_l * (self.crop_size[0] - self.border)) / img.shape[0]
+                        # py_max = (point[3] + x_l * (self.crop_size[1] - self.border)) / img.shape[1]
+
+                        px_min = (point[0] + y_l * (self.crop_size[0] - self.border)) / img.shape[1]
+                        py_min = (point[1] + x_l * (self.crop_size[1] - self.border)) / img.shape[0]
+                        px_max = (point[2] + y_l * (self.crop_size[0] - self.border)) / img.shape[1]
+                        py_max = (point[3] + x_l * (self.crop_size[1] - self.border)) / img.shape[0]
 
                         pj_result_list_points.append([px_min, py_min, px_max, py_max, point[4], point[5]])
                 crop_img_index += 1
@@ -254,14 +239,14 @@ class LoadPbModel():
         # c =1
         for last_point in yield_point_list:
             # 绘制最终拼接的检测结果
-            cv2.rectangle(img, (int(last_point[0] * img.shape[0]), int(last_point[1] * img.shape[1])),
-                          (int(last_point[2] * img.shape[0]), int(last_point[3] * img.shape[1])),
+            cv2.rectangle(img, (int(last_point[0] * img.shape[1]), int(last_point[1] * img.shape[0])),
+                          (int(last_point[2] * img.shape[1]), int(last_point[3] * img.shape[0])),
                           (0, 255, 0), 1, 8)
             cv2.putText(img, str(last_point[4])[:6],
-                        (int(last_point[0] * img.shape[0]), int(last_point[1] * img.shape[1])),
+                        (int(last_point[0] * img.shape[1]), int(last_point[1] * img.shape[0])),
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 1)
             cv2.putText(img, str(last_point[5]),
-                        (int(last_point[0] * img.shape[0]), int(last_point[1] * img.shape[1] + 10)),
+                        (int(last_point[0] * img.shape[1]), int(last_point[1] * img.shape[0]+10)),
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 1)
         return img
 
@@ -360,7 +345,7 @@ if __name__ == "__main__":
     img_list = load_pb_model.read_img(img_path, resize_shape)
     croped_img_list = load_pb_model.crop_img(img_list, crop_size, border)
     y = load_pb_model.eval_img_data_list(croped_img_list)
-    result_list = load_pb_model.pingjie_img(y, img_list[0], repeat_iou,show_rate)
+    result_list = load_pb_model.pingjie_img(y, img_list[0], repeat_iou, show_rate)
     img_resuit = load_pb_model.draw_boxes(result_list, img=img_list[0])
     cv2.imshow("img", img_resuit)
     cv2.waitKey(0)

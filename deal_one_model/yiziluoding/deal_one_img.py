@@ -42,9 +42,9 @@ class YhiZiLuoDingEval():
 
 
 if __name__ == "__main__":
-    load_pb_model = YhiZiLuoDingEval(saved_model_dir)
+    load_pb_model = YhiZiLuoDingEval()
     img_list = load_pb_model.get_detect_result(img_path)
-    img_result = load_pb_model.draw_boxes(img_list, img_path)
+    # img_result = load_pb_model.draw_boxes(img_list, img_path)
     # cv2.imshow("img_result", img_result)
     # cv2.waitKey(0)
     a = 222
