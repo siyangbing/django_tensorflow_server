@@ -77,8 +77,8 @@ def base64_test(request):
         }
         t4 = time.time()
         print("处理一张图片需要{}秒".format(t4 - t0))
-    return JsonResponse(data)
-    # return HttpResponse("success!!!")
+    # return JsonResponse(data)
+    return HttpResponse("success!!!")
 
 
 @echoRuntime

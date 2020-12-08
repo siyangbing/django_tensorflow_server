@@ -4,7 +4,7 @@ import time
 import cv2
 import base64
 
-img1 = cv2.imread("/home/db/bing/django_tensorflow_server/test_img/kaiguandeng.jpg")
+img1 = cv2.imread("/home/db/bing/django_tensorflow_server/test_img/shiziluoding.jpg")
 # img2 = cv2.imread("/home/db/bing/django_tensorflow_server/test_img/shiziluoding.jpg")
 aa1=base64.b64encode(cv2.imencode('.jpg',img1)[1]).decode()
 # aa2=base64.b64encode(cv2.imencode('.jpg',img2)[1]).dcode()
@@ -20,9 +20,10 @@ data_642 = {
     'filename': "img.png",
     'image': aa1,
 }
-url_kaiguandeng = 'http://192.168.3.174:8000/kaiguandeng/t'
-url_shiziluoding = 'http://192.168.3.174:8000/shiziluoding/szld/'
-url= 'http://10.30.2.101:8080/kaiguandeng/base64/'
+# url_kaiguandeng = 'http://192.168.3.174:8000/kaiguandeng/t'
+# url_shiziluoding = 'http://192.168.3.174:8000/shiziluoding/szld/'
+# url= 'http://10.30.2.101:8080/kaiguandeng/base64/'
+url= 'http://192.168.3.174:8080/fangfeiduoge/ffdg/'
 index = 0
 
 # base64_text = aa

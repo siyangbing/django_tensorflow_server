@@ -84,7 +84,44 @@ class LoadPbModel():
         y = self.sess.run([detection_boxes, detection_score, detection_classes, num_detections], feed_dict=feed_dict)
         return y
 
-    def pingjie_img(self, y, img, repeat_iou):
+    def return_result(self,y,show_rate):
+        self.location_list = y[0][0]
+        self.score_list = y[1][0]
+        self.class_list = y[2][0]
+        self.num = y[3]
+
+        for index,point in zip(self.score_list):
+            pass
+
+        # class_obj_dict = {k: self.get_average_xy(v) for k, v in self.map_label().items()}
+
+        # result_list_points = self.del_iou_boxes(final_list)
+        # result = self.julei(3,class_obj_dict["yskg"])
+        # result_deng = self.julei(3, class_obj_dict["deng"], "hang")
+        # result_yskg = self.julei(2, class_obj_dict["yskg"], "hang")
+        # result_hskg = self.julei(1, class_obj_dict["hskg"], "hang")
+
+        # all_list = [result_deng, result_yskg, result_hskg]
+
+        # result_llist = [[[[c[0], c[1], c[2][0], c[2][1], c[2][2], c[2][3]] for c in b] for b in a] for a in all_list]
+        # result_llist = [[[[c[2][0], c[2][1], c[2][2], c[2][3], c[0], c[1]] for c in b] for b in a] for a in all_list]
+
+        # for index_a, a in enumerate(result_llist):
+        #     for index_b, b in enumerate(a):
+        #         # temp_list = [[x[2], x[3], x[4], x[5], x[0], x[1]] for x in b]
+        #         result_llist[index_a][index_b] = self.del_iou_boxes(b)
+        #         # ppp = 3
+        #         # print(b)
+        #
+        # result_findal_list = [[[np.array(c, dtype='float64').tolist() for c in b] for b in a] for a in result_llist]
+        #
+        # print("result_findal_list{}".format(result_findal_list))
+        # # return result_dict
+
+        return 1
+
+
+    def pingjie_img(self, y, img, repeat_iou,show_rate):
         # 拼接图片
         result_list = [[] for x in range(self.w_num * self.h_num)]
 
@@ -321,7 +358,7 @@ if __name__ == "__main__":
     img_list = load_pb_model.read_img(img_path, resize_shape)
     croped_img_list = load_pb_model.crop_img(img_list, crop_size, border)
     y = load_pb_model.eval_img_data_list(croped_img_list)
-    result_list = load_pb_model.pingjie_img(y, img_list[0], repeat_iou)
+    result_list = load_pb_model.pingjie_img(y, img_list[0], repeat_iou,show_rate)
     img_resuit = load_pb_model.draw_boxes(result_list, img=img_list[0])
     cv2.imshow("img", img_resuit)
     cv2.waitKey(0)
