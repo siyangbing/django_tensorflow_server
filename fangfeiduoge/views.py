@@ -30,7 +30,7 @@ def fangfeiduoge(request):
         cv2.imwrite("./ffdg.png", image)
         t2 = time.time()
         print("保存一张图片需要{}秒".format(t2 - t1))
-        code = 200
+        code = 0
 
         try:
             load_pb_model_szld = ShiZiLuoDingEval()
@@ -45,17 +45,13 @@ def fangfeiduoge(request):
             result_list = img_list_szld + img_list_yzld + img_list_kg
             print("result_list  {}".format(result_list))
         except:
-            code = 0
+            code = 200
             result_list = []
-        num = 0
-        if not result_list:
-            for x in result_list:
-                for y in x:
-                    for z in y:
-                        num += 1
+        num = len(result_list)
+        if num == 0 :
+            code = 200
 
-        else:
-            num = 0
+
 
         t3 = time.time()
         print("num--------------------{}".format(num))
@@ -67,5 +63,5 @@ def fangfeiduoge(request):
         }
         t4 = time.time()
         print("处理一张图片需要{}秒".format(t4 - t0))
-    # return JsonResponse(data)
-    return HttpResponse("success!!!")
+    return JsonResponse(data)
+    # return HttpResponse("success!!!")

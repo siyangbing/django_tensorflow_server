@@ -11,7 +11,7 @@ img_path = os.path.join(BASE_DIR, "test_img/kougai.jpg")
 model_path = saved_model_dir = os.path.join(BASE_DIR, "pb_model/fangfei/kougai/saved_model")
 resize_shape = (640, 480)
 repeat_iou = 0.2
-show_rate = 0.5
+show_rate = 0.7
 
 config = tf.ConfigProto(allow_soft_placement=True)
 gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5)
@@ -28,11 +28,17 @@ class KouGaiEval():
     def get_detect_result(self, img_path, resize_shape=resize_shape):
         img_list = self.load_pb_model.read_img(img_path, resize_shape)
         y = self.load_pb_model.eval_img_data_list(img_list)
-        result_list = self.load_pb_model.get_img_result_list(y, repeat_iou=0.3, show_rate=0.5)
+        result_list = self.load_pb_model.get_img_result_list(y, repeat_iou=repeat_iou, show_rate=show_rate)
+        result_list_wrong = []
+        for x in result_list:
+            if x[4] in [2.0,4.0,6.0,8.0]:
+                result_list_wrong.append(x)
+
+        # a = 3
         # img_result = self.load_pb_model.draw_boxes(result_list,img_list[0])
         # cv2.imshow("img_result", img_result)
         # cv2.waitKey(0)
-        return result_list
+        return result_list_wrong
 
 
 if __name__ == "__main__":

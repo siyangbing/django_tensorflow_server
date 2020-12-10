@@ -98,8 +98,8 @@ class LoadPbModel():
 
         for index, point in enumerate(self.score_list):
             if point >= show_rate:
-                one_boxes = [self.location_list[index][1], self.location_list[index][0], self.location_list[index][3],
-                             self.location_list[index][2], point, self.class_list[index]]
+                one_boxes = [self.location_list[index][1].astype(np.float64), self.location_list[index][0].astype(np.float64), self.location_list[index][3].astype(np.float64),
+                             self.location_list[index][2].astype(np.float64), self.class_list[index].astype(np.float64),point.astype(np.float64)]
                 result_list.append(one_boxes)
 
         result_list = self.del_repeat_boxes(result_list, repeat_iou)
@@ -133,7 +133,8 @@ class LoadPbModel():
                         px_max = (point[2] + y_l * (self.crop_size[0] - self.border)) / img.shape[1]
                         py_max = (point[3] + x_l * (self.crop_size[1] - self.border)) / img.shape[0]
 
-                        pj_result_list_points.append([px_min, py_min, px_max, py_max, point[4], point[5]])
+                        # pj_result_list_points.append([px_min, py_min, px_max, py_max, point[4], point[5]])
+                        pj_result_list_points.append([px_min, py_min, px_max, py_max, point[5].astype(np.float64),point[4].astype(np.float64)])
                 crop_img_index += 1
 
         pj_result_list_points = self.del_repeat_boxes(pj_result_list_points, repeat_iou)

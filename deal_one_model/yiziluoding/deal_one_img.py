@@ -2,6 +2,8 @@ import os
 
 import tensorflow as tf
 import cv2
+import numpy as np
+
 from django_tensorflow_server.settings import BASE_DIR
 
 from eval_img_class.load_pb_model import LoadPbModel
@@ -12,7 +14,7 @@ model_path = saved_model_dir = os.path.join(BASE_DIR, "pb_model/fangfei/yiziluod
 resize_shape = (1920, 1080)
 crop_size = (640, 640)
 border = 110
-show_rate = 0.5
+show_rate = 0.6
 repeat_iou = 0.2
 
 config = tf.ConfigProto(allow_soft_placement=True)
@@ -37,6 +39,7 @@ class YhiZiLuoDingEval():
         # img_result = self.load_pb_model.draw_boxes(result_list,img_list[0])
         # cv2.imshow("img_result", img_result)
         # cv2.waitKey(0)
+        a = 44
         return result_list
 
 

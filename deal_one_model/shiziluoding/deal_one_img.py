@@ -12,7 +12,7 @@ model_path = saved_model_dir = os.path.join(BASE_DIR, "pb_model/fangfei/shiziluo
 resize_shape = (1920, 1080)
 crop_size = (640, 640)
 border = 110
-show_rate = 0.5
+show_rate = 0.6
 repeat_iou = 0.2
 
 config = tf.ConfigProto(allow_soft_placement=True)
@@ -34,7 +34,8 @@ class ShiZiLuoDingEval():
         croped_img_list = self.load_pb_model.crop_img(img_list, crop_size, border)
         y = self.load_pb_model.eval_img_data_list(croped_img_list)
         result_list = self.load_pb_model.pingjie_img(y, img_list[0], repeat_iou=repeat_iou, show_rate=show_rate)
-        # img_result = self.load_pb_model.draw_boxes(result_list,img_list[0])
+        img_result = self.load_pb_model.draw_boxes(result_list,img_list[0])
+        cv2.imwrite("/home/db/图片/test_dlbz/szld.jpg",img_result)
         # cv2.imshow("img_result", img_result)
         # cv2.waitKey(0)
         return result_list
