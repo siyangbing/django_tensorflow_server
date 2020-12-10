@@ -60,11 +60,28 @@ def base64_test(request):
             for y in x:
                 for z in y:
                     num += 1
+
+        if len(result_list) == 3:
+            deng, yskg, hskg = result_list
+            if len(deng) == 3 and len(yskg) == 2 and len(hskg) == 1:
+                one, two, three = deng
+                yskg_one,yskg_two = yskg
+                one_hskg = hskg[0]
+                if len(one)==12 and len(two)==8 and len(three)==8 and len(yskg_one)==8 and len(yskg_two)==1 and len(one_hskg)==1:
+                    code = 200
+                else:
+                    code = 0
+            else:
+                code = 0
+        else:
+            code = 0
+
         t3 = time.time()
+        print("code--------------------{}".format(num))
         print("num--------------------{}".format(num))
         print("计算一张图片需要{}秒".format(t3 - t2))
         data = {
-            'code': code,
+            'co de': code,
             'num': num,
             'result': result_list,
         }
@@ -72,6 +89,7 @@ def base64_test(request):
         print("处理一张图片需要{}秒".format(t4 - t0))
     return JsonResponse(data)
     # return HttpResponse("success!!!")
+
 
 def test(request):
     if (request.method == 'POST'):
