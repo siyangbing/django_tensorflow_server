@@ -13,8 +13,8 @@ import numpy as np
 from django.http import JsonResponse
 import base64
 
-from kaiguandeng.deal_img.location_map import Map_location, model_img_input_size, label_dict, config, saved_model_dir, \
-    join_label_dict, treshold
+
+from deal_one_model.kaiguandeng.deal_one_img import KaiGuanDengEval
 
 
 def echoRuntime(func):
@@ -30,7 +30,7 @@ def echoRuntime(func):
 
 
 # @echoRuntime
-def base64_test(request):
+def kaiguandeng(request):
     if (request.method == 'POST'):
         t0 = time.time()
 
@@ -46,14 +46,10 @@ def base64_test(request):
         cv2.imwrite("./pppp.png", image)
         t2 = time.time()
         print("保存一张图片需要{}秒".format(t2 - t1))
-        code = 200
         try:
-            map_location = Map_location(treshold, label_dict, join_label_dict, model_img_input_size)
-            img_data_list = map_location.read_img(image)
-            y_list = map_location.eval_img_list(img_data_list)
-            result_list = map_location.get_location(y_list)
+            load_pb_model_szld = KaiGuanDengEval()
+            result_list = load_pb_model_szld.get_detect_result(image)
         except:
-            code = 0
             result_list = []
         num = 0
         for x in result_list:
@@ -81,7 +77,7 @@ def base64_test(request):
         print("num--------------------{}".format(num))
         print("计算一张图片需要{}秒".format(t3 - t2))
         data = {
-            'co de': code,
+            'code': code,
             'num': num,
             'result': result_list,
         }
@@ -89,46 +85,3 @@ def base64_test(request):
         print("处理一张图片需要{}秒".format(t4 - t0))
     return JsonResponse(data)
     # return HttpResponse("success!!!")
-
-
-def test(request):
-    if (request.method == 'POST'):
-        t0 = time.time()
-
-        img_data = request.POST.get('image')  # 本质就是解码字符串
-        tt = time.time()
-        print("接收一张图片需要{}秒".format(tt - t0))
-        # print(test_image)
-        img_byte = base64.b64decode(img_data)
-        img_np_arr = np.fromstring(img_byte, np.uint8)
-        image = cv2.imdecode(img_np_arr, cv2.IMREAD_COLOR)
-        t1 = time.time()
-        print("解码张图片需要{}秒".format(t1 - tt))
-        cv2.imwrite("./p1.jpg", image)
-        t2 = time.time()
-        print("保存一张图片需要{}秒".format(t2 - t1))
-        # code = 200
-        # try:
-        #     map_location = Map_location(treshold, label_dict, join_label_dict, model_img_input_size)
-        #     img_data_list = map_location.read_img(image)
-        #     y_list = map_location.eval_img_list(img_data_list)
-        #     result_list = map_location.get_location(y_list)
-        # except:
-        #     code = 0
-        #     result_list = []
-        # num = 0
-        # for x in result_list:
-        #     for y in x:
-        #         for z in y:
-        #             num += 1
-        # t3 = time.time()
-        # print("num--------------------{}".format(num))
-        # print("计算一张图片需要{}秒".format(t3 - t2))
-        # data = {
-        #     'code': code,
-        #     'num': num,
-        #     'result': result_list,
-        # }
-        # t4 = time.time()
-        # print("处理一张图片需要{}秒".format(t4 - t0))
-    return HttpResponse("success!!!")
