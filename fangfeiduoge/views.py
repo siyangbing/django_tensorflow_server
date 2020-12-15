@@ -47,10 +47,8 @@ def fangfeiduoge(request):
             code = 200
             result_list = []
         num = len(result_list)
-        if num == 0 :
+        if num == 0:
             code = 200
-
-
 
         t3 = time.time()
         print("num--------------------{}".format(num))

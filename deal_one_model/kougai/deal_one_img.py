@@ -6,7 +6,9 @@ from django_tensorflow_server.settings import BASE_DIR
 
 from eval_img_class.load_pb_model import LoadPbModel
 
-img_path = os.path.join(BASE_DIR, "test_img/kougai.jpg")
+# img_path = os.path.join(BASE_DIR, "test_img/kougai.jpg")
+img_path = os.path.join(BASE_DIR, "test_img/toubu11.jpg")
+# img_path = os.path.join(BASE_DIR, "test_img/toubu22.jpg")
 
 model_path = saved_model_dir = os.path.join(BASE_DIR, "pb_model/fangfei/kougai/saved_model")
 resize_shape = (640, 480)
@@ -31,13 +33,13 @@ class KouGaiEval():
         result_list = self.load_pb_model.get_img_result_list(y, repeat_iou=repeat_iou, show_rate=show_rate)
         result_list_wrong = []
         for x in result_list:
-            if x[4] in [2.0,4.0,6.0,8.0]:
+            if x[4] in [2.0,4.0,5.0,8.0]:
                 result_list_wrong.append(x)
 
         # a = 3
-        # img_result = self.load_pb_model.draw_boxes(result_list,img_list[0])
-        # cv2.imshow("img_result", img_result)
-        # cv2.waitKey(0)
+        img_result = self.load_pb_model.draw_boxes(result_list,img_list[0])
+        cv2.imshow("img_result", img_result)
+        cv2.waitKey(0)
         return result_list_wrong
 
 

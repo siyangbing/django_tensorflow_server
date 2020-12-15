@@ -246,10 +246,10 @@ class LoadPbModel():
                           (0, 255, 0), 1, 8)
             cv2.putText(img, str(last_point[4])[:6],
                         (int(last_point[0] * img.shape[1]), int(last_point[1] * img.shape[0])),
-                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 1)
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 0, 0), 1)
             cv2.putText(img, str(last_point[5]),
                         (int(last_point[0] * img.shape[1]), int(last_point[1] * img.shape[0] + 10)),
-                        cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 1)
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 0), 1)
         return img
 
     def yield_points_from_list(self, point_list):
