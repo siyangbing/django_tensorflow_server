@@ -2,13 +2,14 @@ import os
 
 import tensorflow as tf
 import cv2
+import numpy as np
 from django_tensorflow_server.settings import BASE_DIR
 
 from eval_img_class.load_pb_model import LoadPbModel
 
 # img_path = os.path.join(BASE_DIR, "test_img/tongdianzuocang2.jpg")
-# img_path = os.path.join(BASE_DIR, "test_img/tongdianzuocang3.jpg")
-img_path = os.path.join(BASE_DIR, "test_img/zuocangtongyong.jpg")
+img_path = os.path.join(BASE_DIR, "test_img/tongdianzuocang3.jpg")
+# img_path = os.path.join(BASE_DIR, "test_img/zuocangtongyong.jpg")
 
 model_path = saved_model_dir = os.path.join(BASE_DIR, "pb_model/tongdian/tongdianzuocang/saved_model")
 resize_shape = (640, 480)
@@ -68,10 +69,17 @@ class TongDianZuoCangEval():
             else:
                 pass
 
-        # a = 3
-        # img_result = self.load_pb_model.draw_boxes(result_list, img_list[0])
-        # cv2.imshow("img_result", img_result)
-        # cv2.waitKey(0)
+        if code == 200 and num_dict[2.0]==7:
+
+            lkg_list = [x for x in result_list if float(x[4]) in [1.0,2.0]]
+            lkg_list.sort(key=lambda x:x[0])
+            if lkg_list[3][4]==1.0:
+                code = 0
+
+        a = 3
+        img_result = self.load_pb_model.draw_boxes(result_list, img_list[0])
+        cv2.imshow("img_result", img_result)
+        cv2.waitKey(0)
         return result_list, code
 
 

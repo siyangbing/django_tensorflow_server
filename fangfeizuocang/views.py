@@ -5,9 +5,10 @@ import base64
 import numpy as np
 import cv2
 from django.shortcuts import render
-from django.http import HttpResponse,JsonResponse
+from django.http import HttpResponse, JsonResponse
 
 from deal_one_model.fangfeizuocang.deal_one_img import FangFeiZuoCangEval
+
 
 # Create your views here.
 def fangfeizuocang(request):
@@ -29,16 +30,13 @@ def fangfeizuocang(request):
 
         try:
             load_pb_model_ffzc = FangFeiZuoCangEval()
-            result_list,new_code = load_pb_model_ffzc.get_detect_result(image)
+            result_list, new_code = load_pb_model_ffzc.get_detect_result(image)
             code = new_code
             print("img_list_ffzc {}".format(result_list))
         except:
             code = 0
             result_list = []
         num = len(result_list)
-        if num == 0:
-            code = 200
-
         t3 = time.time()
         print("num--------------------{}".format(num))
         print("计算一张图片需要{}秒".format(t3 - t2))
