@@ -53,8 +53,8 @@ while True:
     # r_tongdianzuocang = requests.post(url_tongdianzuocang, data={'image': data_tongdianzuocang})
 
     # print(r.content)
-    print(r_fangfeizuocang.content.decode("utf-8"))
-    # print(r_tongdianzuocang.content.decode("utf-8"))
+    # print(r_fangfeizuocang.content.decode("utf-8"))
+    print(r_tongdianzuocang.content.decode("utf-8"))
     # requests.get(url_kaiguandeng,params=data)
     # time.sleep(1)
     index = index + 1

@@ -77,9 +77,9 @@ class TongDianZuoCangEval():
                 code = 0
 
         a = 3
-        img_result = self.load_pb_model.draw_boxes(result_list, img_list[0])
-        cv2.imshow("img_result", img_result)
-        cv2.waitKey(0)
+        # img_result = self.load_pb_model.draw_boxes(result_list, img_list[0])
+        # cv2.imshow("img_result", img_result)
+        # cv2.waitKey(0)
         return result_list, code
 
 
