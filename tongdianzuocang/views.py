@@ -5,15 +5,17 @@ import base64
 import numpy as np
 import cv2
 from django.shortcuts import render
-from django.http import HttpResponse,JsonResponse
+from django.http import HttpResponse, JsonResponse
 
 from deal_one_model.tongdianzuocang.deal_one_img import TongDianZuoCangEval
+
 
 # Create your views here.
 def tongdianzuocang(request):
     if (request.method == 'POST'):
         t0 = time.time()
         img_data = request.POST.get('image')  # 本质就是解码字符串
+        part_index = request.POST.get('part')
         tt = time.time()
         print("接收一张图片需要{}秒".format(tt - t0))
         # print(test_image)
@@ -22,14 +24,14 @@ def tongdianzuocang(request):
         image = cv2.imdecode(img_np_arr, cv2.IMREAD_COLOR)
         t1 = time.time()
         print("解码张图片需要{}秒".format(t1 - tt))
-        cv2.imwrite("./ffdg.png", image)
+        cv2.imwrite("./ffdg.png", image,part_index)
         t2 = time.time()
         print("保存一张图片需要{}秒".format(t2 - t1))
         code = 0
 
         try:
             load_pb_model_tdzc = TongDianZuoCangEval()
-            result_list, new_code = load_pb_model_tdzc.get_detect_result(image)
+            result_list, new_code, part = load_pb_model_tdzc.get_detect_result(image)
             code = new_code
             print("img_list_tdzc {}".format(result_list))
         except:
@@ -43,10 +45,11 @@ def tongdianzuocang(request):
         data = {
             'code': code,
             'num': num,
+            'total': 3,
+            'part': part,
             'result': result_list,
         }
         t4 = time.time()
         print("处理一张图片需要{}秒".format(t4 - t0))
     return JsonResponse(data)
     # return HttpResponse("success!!!")
-

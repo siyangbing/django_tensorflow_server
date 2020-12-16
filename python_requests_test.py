@@ -36,7 +36,7 @@ data_fangfeizuocang = base64.b64encode(cv2.imencode('.jpg', img_fangfeizuocang)[
 
 # url_kaiguandeng= 'http://192.168.3.174:8080/kaiguandeng/kgd/'
 # url_fangfeiduoge = 'http://192.168.3.174:8080/fangfeiduoge/ffdg/'
-url_fangfeizuocang = 'http://192.168.9.63:8080/fangfeizuocang/ffzc/'
+url_fangfeizuocang = 'http://192.168.43.134:8080/fangfeizuocang/ffzc/'
 url_tongdianzuocang = 'http://192.168.9.63:8080/tongdianzuocang/tdzc/'
 index = 0
 
@@ -53,13 +53,13 @@ while True:
     # r_tongdianzuocang = requests.post(url_tongdianzuocang, data={'image': data_tongdianzuocang})
 
     # print(r.content)
-    # print(r_fangfeizuocang.content.decode("utf-8"))
-    print(r_tongdianzuocang.content.decode("utf-8"))
+    print(r_fangfeizuocang.content.decode("utf-8"))
+    # print(r_tongdianzuocang.content.decode("utf-8"))
     # requests.get(url_kaiguandeng,params=data)
     # time.sleep(1)
     index = index + 1
     # requests.post(url_shiziluoding, data=data_642)
     print(index)
 
-    break
+    # break
     # time.sleep(1)

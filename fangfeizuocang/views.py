@@ -15,6 +15,7 @@ def fangfeizuocang(request):
     if (request.method == 'POST'):
         t0 = time.time()
         img_data = request.POST.get('image')  # 本质就是解码字符串
+        part_index = request.POST.get('part')
         tt = time.time()
         print("接收一张图片需要{}秒".format(tt - t0))
         # print(test_image)
@@ -30,7 +31,7 @@ def fangfeizuocang(request):
 
         try:
             load_pb_model_ffzc = FangFeiZuoCangEval()
-            result_list, new_code = load_pb_model_ffzc.get_detect_result(image)
+            result_list, new_code,part = load_pb_model_ffzc.get_detect_result(image,part_index)
             code = new_code
             print("img_list_ffzc {}".format(result_list))
         except:
@@ -43,6 +44,8 @@ def fangfeizuocang(request):
         data = {
             'code': code,
             'num': num,
+            'total': 3,
+            'part': part,
             'result': result_list,
         }
         t4 = time.time()

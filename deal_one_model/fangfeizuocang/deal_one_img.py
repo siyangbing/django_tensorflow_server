@@ -6,10 +6,10 @@ from django_tensorflow_server.settings import BASE_DIR
 
 from eval_img_class.load_pb_model import LoadPbModel
 
-img_path = os.path.join(BASE_DIR, "test_img/zuocangtongyong.jpg")
+# img_path = os.path.join(BASE_DIR, "test_img/zuocangtongyong.jpg")
 # img_path = os.path.join(BASE_DIR, "test_img/fangfeizuocang2.jpg")
 # img_path = os.path.join(BASE_DIR, "test_img/fangfeizuocang3.jpg")
-# img_path = os.path.join(BASE_DIR, "test_img/fangfeizuocang4.jpg")
+img_path = os.path.join(BASE_DIR, "test_img/fangfeizuocang4.jpg")
 model_path = saved_model_dir = os.path.join(BASE_DIR, "pb_model/fangfei/fangfeizuocang/saved_model")
 resize_shape = (640, 480)
 repeat_iou = 0.2
@@ -47,41 +47,54 @@ class FangFeiZuoCangEval():
                 num_dict[box[4]] += 1
         return num_dict
 
-    def get_detect_result(self, img_path, resize_shape=resize_shape):
+    def get_detect_result(self, img_path,part_index, resize_shape=resize_shape):
         img_list = self.load_pb_model.read_img(img_path, resize_shape)
         y = self.load_pb_model.eval_img_data_list(img_list)
         result_list = self.load_pb_model.get_img_result_list(y, repeat_iou=repeat_iou, show_rate=show_rate)
         num_dict = self.count(result_list)
         print(num_dict)
 
-        # result_list_wrong = []
-        for index, step_dict in enumerate(step_list):
-            for key in step_dict:
-                code = 0
-                if key in num_dict:
-                    if num_dict[key]==step_dict[key]:
-                        code = 200
-                    else:
-                        code=0
-                        break
+        quyu_index = 0
+        for key in step_list[part_index-1]:
+            code = 0
+            if key in num_dict:
+                if num_dict[key]==step_list[part_index-1][key]:
+                    quyu_index = part_index
+                    code =200
                 else:
-                    code=0
+                    code = 0
                     break
-            if code == 200:
-                break
             else:
-                pass
+                code = 0
+                break
+        # for index, step_dict in enumerate(step_list):
+        #     for key in step_dict:
+        #         code = 0
+        #         if key in num_dict:
+        #             if num_dict[key] == step_dict[key]:
+        #                 code = 200
+        #             else:
+        #                 code = 0
+        #                 break
+        #         else:
+        #             code = 0
+        #             break
+        #     if code == 200:
+        #         quyu_index = index + 1
+        #         break
+        #     else:
+        #         pass
 
         # a = 3
         # img_result = self.load_pb_model.draw_boxes(result_list, img_list[0])
         # cv2.imshow("img_result", img_result)
         # cv2.waitKey(0)
-        return result_list,code
+        return result_list, code, quyu_index
 
 
 if __name__ == "__main__":
     load_pb_model = FangFeiZuoCangEval()
-    img_list,code = load_pb_model.get_detect_result(img_path)
+    img_list, code = load_pb_model.get_detect_result(img_path)
     # img_result = load_pb_model.draw_boxes(img_list, img_path)
     # cv2.imshow("img_result", img_result)
     # cv2.waitKey(0)
