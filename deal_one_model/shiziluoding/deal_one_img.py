@@ -38,9 +38,9 @@ class ShiZiLuoDingEval():
         y = self.load_pb_model.eval_img_data_list(croped_img_list)
         result_list = self.load_pb_model.pingjie_img(y, img_list[0], repeat_iou=repeat_iou, show_rate=show_rate)
         img_result = self.load_pb_model.draw_boxes(result_list,img_list[0])
-        cv2.imwrite("./szld.jpg",img_result)
-        cv2.imshow("img_result", img_result)
-        cv2.waitKey(0)
+        # cv2.imwrite("./szld.jpg",img_result)
+        # cv2.imshow("img_result", img_result)
+        # cv2.waitKey(0)
         return result_list
 
 
