@@ -7,6 +7,9 @@ from django_tensorflow_server.settings import BASE_DIR
 from eval_img_class.load_pb_model import LoadPbModel
 
 img_path = os.path.join(BASE_DIR, "test_img/shiziluoding.jpg")
+# img = cv2.imread(img_path)
+# cv2.imshow("asdf",img)
+# cv2.waitKey(0)
 
 model_path = saved_model_dir = os.path.join(BASE_DIR, "pb_model/fangfei/shiziluoding/saved_model")
 resize_shape = (1920, 1080)
@@ -35,16 +38,16 @@ class ShiZiLuoDingEval():
         y = self.load_pb_model.eval_img_data_list(croped_img_list)
         result_list = self.load_pb_model.pingjie_img(y, img_list[0], repeat_iou=repeat_iou, show_rate=show_rate)
         img_result = self.load_pb_model.draw_boxes(result_list,img_list[0])
-        cv2.imwrite("/home/db/图片/test_dlbz/szld.jpg",img_result)
-        # cv2.imshow("img_result", img_result)
-        # cv2.waitKey(0)
+        cv2.imwrite("./szld.jpg",img_result)
+        cv2.imshow("img_result", img_result)
+        cv2.waitKey(0)
         return result_list
 
 
 if __name__ == "__main__":
-    load_pb_model = ShiZiLuoDingEval(saved_model_dir)
+    load_pb_model = ShiZiLuoDingEval(sess)
     img_list = load_pb_model.get_detect_result(img_path)
-    img_result = load_pb_model.draw_boxes(img_list, img_path)
+    # img_result = load_pb_model.draw_boxes(img_list, img_path)
     # cv2.imshow("img_result", img_result)
     # cv2.waitKey(0)
     a = 222

@@ -15,7 +15,7 @@ def fangfeizuocang(request):
     if (request.method == 'POST'):
         t0 = time.time()
         img_data = request.POST.get('image')  # 本质就是解码字符串
-        part_index = request.POST.get('part')
+        part_index = int(request.POST.get('part'))
         tt = time.time()
         print("接收一张图片需要{}秒".format(tt - t0))
         # print(test_image)

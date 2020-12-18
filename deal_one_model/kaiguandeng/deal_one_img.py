@@ -36,7 +36,8 @@ class KaiGuanDengEval():
         result_list = self.load_pb_model.get_map_location(y, label_dict=label_dict, join_label_dict=join_label_dict, threshold=show_rate, hang_dict=hang_dict)
 
         # a = 3
-        # img_result = self.load_pb_model.draw_boxes(result_list,img_list[0])
+        img_result = self.load_pb_model.draw_boxes(result_list,img_list[0])
+        cv2.imwrite("123.jpg",img_result)
         # cv2.imshow("img_result", img_result)
         # cv2.waitKey(0)
         return result_list
