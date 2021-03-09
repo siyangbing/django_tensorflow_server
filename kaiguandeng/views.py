@@ -82,6 +82,7 @@ def kaiguandeng(request):
             'result': result_list,
         }
         t4 = time.time()
+        # print(data)
         print("处理一张图片需要{}秒".format(t4 - t0))
     return JsonResponse(data)
     # return HttpResponse("success!!!")

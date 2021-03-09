@@ -148,6 +148,9 @@ class LoadPbModel():
         # 删除多余的矩形框
         result_list = pj_result_list_points
         while 1:
+            # 如果删除多余框参数为False则不删除多余框，跳出循环
+            if repeat_iou == False:
+                break
             pingjie_points_list = result_list
             if_ok = 1
             for point1_1 in pingjie_points_list:
@@ -156,7 +159,7 @@ class LoadPbModel():
                         if self.solve_coincide(point1_1, point2_2) > repeat_iou:
                             # 如果重合面大于0.2就只保留得分高的检测框，删除得分低的检测框
                             if_ok = 0
-                            if point1_1[4] > point2_2[4]:
+                            if point1_1[5] > point2_2[5]:
                                 result_list.remove(point2_2)
                             else:
                                 if point1_1 in result_list:

@@ -33,11 +33,11 @@ class KouGaiEval():
         result_list = self.load_pb_model.get_img_result_list(y, repeat_iou=repeat_iou, show_rate=show_rate)
         result_list_wrong = []
         for x in result_list:
-            if x[4] in [2.0,4.0,5.0,8.0]:
+            if x[4] in [2.0, 4.0, 5.0, 8.0]:
                 result_list_wrong.append(x)
 
         # a = 3
-        img_result = self.load_pb_model.draw_boxes(result_list,img_list[0])
+        img_result = self.load_pb_model.draw_boxes(result_list, img_list[0])
         cv2.imshow("img_result", img_result)
         cv2.waitKey(0)
         return result_list_wrong
