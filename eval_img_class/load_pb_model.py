@@ -79,6 +79,7 @@ class LoadPbModel():
 
             img_data_list_convert.append(input_data)
         img_data = np.vstack((x for x in img_data_list_convert))
+        # img_data = np.vstack([x for x in img_data_list_convert])
         input = self.sess.graph.get_tensor_by_name('image_tensor:0')
         detection_boxes = self.sess.graph.get_tensor_by_name('detection_boxes:0')
         detection_score = self.sess.graph.get_tensor_by_name('detection_scores:0')
