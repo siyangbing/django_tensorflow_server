@@ -1,5 +1,4 @@
-python-opencv
+opencv-python
 django
-uvicorn
 matplotlib
 sklearn
